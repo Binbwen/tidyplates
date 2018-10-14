@@ -4,6 +4,8 @@
 ------------------------------
 
 
+-- CombatIcons.tga
+
 local comboWidgetPath = "Interface\\Addons\\TidyPlatesWidgets\\ComboWidget\\"
 local artpath = "Interface\\Addons\\TidyPlatesWidgets\\ComboWidget\\"
 local artfile = artpath.."RogueLegion.tga"
@@ -49,9 +51,6 @@ local function ConfigDruid()
 	-- Set Power Max / Marker config
 
 	-- update on energy max?
-
-
-
 end
 
 
@@ -73,7 +72,6 @@ end
 
 
 
-
 -- Update Graphics
 local function UpdateCombatWidget()
 
@@ -83,7 +81,6 @@ local function UpdateCombatWidget()
 
 
 		if points and points > 0 then
-			--print("Combo Point Update:", points)
 
 			-- SetTexCoord:  First two values define the range of the Horizontal
 			if maxPoints == 6 then
@@ -93,14 +90,13 @@ local function UpdateCombatWidget()
 			end
 
 			CombatWidgetFrame:Show()
+
 			return
 		end
 
 	end
 
-
 	CombatWidgetFrame:Hide()
-
 end
 
 
@@ -145,6 +141,7 @@ local function CreateCombatWidget(parent)
 end
 
 
+
 local function ClearWidgetContext(frame)
 	--print("Clearing Context")
 	CombatWidgetFrame:SetParent(WorldFrame)
@@ -161,7 +158,8 @@ local function UpdateWidgetContext(frame, unit)
 	if UnitIsUnit("target", unit.unitid) then
 		--print("Anchoring to", unit.name, unit.unitid)
 
-		CombatWidgetFrame:SetParent(frame)
+		--CombatWidgetFrame:SetParent(frame)
+		CombatWidgetFrame:SetParent(WorldFrame)
 		CombatWidgetFrame:SetPoint("CENTER", frame, "CENTER")
 
 		CombatWidgetFrame.nameplateUnitID = unit.unitid
@@ -170,52 +168,39 @@ local function UpdateWidgetContext(frame, unit)
 end
 
 
-
-
-
-
 -- Watcher Frame
 local WatcherFrame = CreateFrame("Frame", nil, WorldFrame )
 local isEnabled = false
 
 
 
-WatcherFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-WatcherFrame:RegisterEvent("RUNE_POWER_UPDATE")
-WatcherFrame:RegisterEvent("UNIT_POWER_FREQUENT")
-WatcherFrame:RegisterEvent("UNIT_MAXPOWER")
-WatcherFrame:RegisterEvent("UNIT_POWER_UPDATE")
-WatcherFrame:RegisterEvent("UNIT_DISPLAYPOWER")
-WatcherFrame:RegisterEvent("UNIT_AURA")
-WatcherFrame:RegisterEvent("UNIT_FLAGS")
-
-
-local function WatcherFrameHandler(frame, event, unitid)
-
-	--print(event)
-
-	--if UnitExists("target") then
-		UpdateCombatWidget()
-	--end
-
-end
-
-
-
 local function EnableWatcherFrame(arg)
 	if arg then
 		CombatWidgetFrame = CreateCombatWidget(WorldFrame)
-		WatcherFrame:SetScript("OnEvent", WatcherFrameHandler); isEnabled = true
-	else WatcherFrame:SetScript("OnEvent", nil); isEnabled = false end
+		CombatWidgetFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+		CombatWidgetFrame:RegisterEvent("RUNE_POWER_UPDATE")
+		CombatWidgetFrame:RegisterEvent("UNIT_POWER_FREQUENT")
+		CombatWidgetFrame:RegisterEvent("UNIT_MAXPOWER")
+		CombatWidgetFrame:RegisterEvent("UNIT_POWER_UPDATE")
+		CombatWidgetFrame:RegisterEvent("UNIT_DISPLAYPOWER")
+		CombatWidgetFrame:RegisterEvent("UNIT_AURA")
+		CombatWidgetFrame:RegisterEvent("UNIT_FLAGS")
+
+
+		CombatWidgetFrame:SetScript("OnEvent", UpdateCombatWidget)
+		isEnabled = true
+	else 
+		CombatWidgetFrame:SetScript("OnEvent", nil)
+		isEnabled = false 
+	end
 end
+
+
 
 
 -----------------------
 -- Widget Creation
 -----------------------
-
-
-
 
 local function CreateWidgetCarrier(parent)
 	-- Required Widget Code

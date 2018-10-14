@@ -1,9 +1,16 @@
 Pack Command:  		zip -vr TP_Release.zip TidyPlates* -x@exclude.lst
+Copy command:		cp -R TidyPlates* ~/tidyplates
 Exclusion List: 	*.svn*   *.DS_Store*   exclude.lst   *.db   *.png   *.gif   *.jpg   *.tif   *.txt   *.psd   *.bmp   *.zip
 
 
 See TidyPlatesChanges.log for cumulative changes:
 
+
+---------------------------
+6.19.2-Beta4
+---------------------------
+* Core: bugs
+* Hub Widgets: Fixed duplicate code
 
 ---------------------------
 6.19.2-Beta3
@@ -45,6 +52,28 @@ See TidyPlatesChanges.log for cumulative changes:
 	- Specify FrameName
 	- Specify events to recieve
 	-
+
+
+ - Absorbs integrated into the main bars
+ 	- Effective Max Health = Max Health + Max Absorb
+ 	-Threat- totalAbsorbs = UnitGetTotalAbsorbs("unit"), UNIT_ABSORB_AMOUNT_CHANGED
+ 		- [ #### Health ########## | ** Absorb *** | ............] (Total Bar Size = MaxHealth + MaxAbsorb).... Health Bar Color can define the Absorb Color
+ 		- Status Bar Needs a secondary Bar, Labeled 'Tail'
+
+ 	- Effective Max Health = Max Health + Max Heal Absorb?  Not quite sure on healing absorbs
+ 		- totalHealAbsorbs = UnitGetTotalHealAbsorbs("unit"), UNIT_HEAL_ABSORB_AMOUNT_CHANGED
+
+ - Combat/Combo Widget
+ 	- For all classes that use combo-like resources
+ 	- Seperate Widget into 6 Independent Icons
+
+ - Auras
+ 	- Color/Pip/Symbol Tagging
+ 	- Prefix: Tag1, Tag2, Tag3 = Defines priority and color and symbol
+
+
+ 	
+
 
 
 
