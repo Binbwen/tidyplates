@@ -249,8 +249,8 @@ WidgetConfig.ClassIcon = { anchor = "TOP" , x = 0,y = VerticalAdjustment + 26 }	
 WidgetConfig.TotemIcon = { anchor = "TOP" , x = 0 ,y = VerticalAdjustment + 26 }
 WidgetConfig.ThreatLineWidget = { anchor =  "TOP", x = 0 ,y = VerticalAdjustment + 20 }	-- y = 20
 WidgetConfig.ThreatWheelWidget = { anchor =  "CENTER", x = 33 ,y = VerticalAdjustment + 27 } -- "CENTER", plate, 30, 18
-WidgetConfig.ComboWidget = { anchor = "TOP" , x = 0 ,y = VerticalAdjustment + 0 }
-WidgetConfig.RangeWidget = { anchor = "CENTER" , x = 0 ,y = VerticalAdjustment + 12 }
+WidgetConfig.ComboWidget = { anchor = "TOP" , x = 0 ,y = VerticalAdjustment - 12 }  -- Combo points look much better at minus 12
+WidgetConfig.RangeWidget = { anchor = "CENTER" , x = 0 ,y = VerticalAdjustment + 12 } 
 WidgetConfig.DebuffWidget = { anchor = "TOP" , x = 15 ,y = VerticalAdjustment + 33 }
 
 
