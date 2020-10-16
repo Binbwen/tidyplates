@@ -21,6 +21,11 @@ local RaidIconColors = {
 	["SKULL"] = {r = 244/255, g = 242/255, b = 240/255,},
 }
 
+local BossGrey = {r = 251/255, g = 240/255, b = 85/255,}
+local NormalGrey = {r = 251/255, g = 240/255, b = 85/255,}
+local EliteColor  = {r = 251/255, g = 240/255, b = 85/255,}
+local RareColor  = {r = 251/255, g = 240/255, b = 85/255,}
+
 local ReactionColors = HubData.Colors.ReactionColors
 local NameReactionColors = HubData.Colors.NameReactionColors
 

@@ -1,0 +1,136 @@
+
+~~~~~~~~~~~~~~~~~~
+6.19.3+ Forecast:
+~~~~~~~~~~~~~~~~~~
+* Diagnostic Switch -  /tp info
+	- version, themes, hub output, in seperate window
+* Name Text Options; Hide, Change, etc.
+* Combat Widget for Druid, Monk & Rogue
+* Need to work on Threat Widget (Threat is important these days!)
+* (PvP tools are lower priority - Sorry!)
+* Opacity & Scale - Add "Spotlight Quest Mobs" ?
+
+* Start Naming your frames
+* CreateNameplateWidget
+	- Specify FrameName
+	- Specify events to recieve
+	-
+
+* Cast Bar Mana Bar
+
+
+* Reverse Bar Mode...  Health Bar indicates the amount of damage you have caused?
+
+
+* Threat Color for Elite and Rare Mobs
+* Spotlight Elite and Rare Mobs in World 
+
+Three Major Things:
+
+
+
+ - Absorbs integrated into the main bars
+ 	- Effective Max Health = Max Health + Max Absorb
+ 	-Threat- totalAbsorbs = UnitGetTotalAbsorbs("unit"), UNIT_ABSORB_AMOUNT_CHANGED
+ 		- [ #### Health ########## | ** Absorb *** | ............] (Total Bar Size = MaxHealth + MaxAbsorb).... Health Bar Color can define the Absorb Color
+ 		- Status Bar Needs a secondary Bar, Labeled 'Tail'
+
+ 	- Effective Max Health = Max Health + Max Heal Absorb?  Not quite sure on healing absorbs
+ 		- totalHealAbsorbs = UnitGetTotalHealAbsorbs("unit"), UNIT_HEAL_ABSORB_AMOUNT_CHANGED
+
+
+
+ - Combat/Combo Widget
+ 	- For all classes that use combo-like resources
+ 	- Seperate Widget into 6 Independent Icons
+
+
+
+ - Auras
+ 	- Color/Pip/Symbol Tagging
+ 	- Prefix: Tag1, Tag2, Tag3 = Defines priority and color and symbol
+
+ 	- "Include Stealable Enemy Buffs". _DONE!  
+ 		- Need to add a color chip chooser
+
+
+
+Minor Things:
+
+	- PvP Love: TargetOf YOU gets a ThreatGlow
+	- Level Icon etc.
+	- Skull icon, Rare, Etc.
+	- Skull Icon overlay framelevel
+
+	- How to determine threatening mobs?  Maybe we use the Threat Glow at 'High Threat', but not yet attacking
+	-  Make use of Threat Glow for Many other things!!
+	- Gray threat Glow for Non-Combat mobs
+
+ 	
+Threat Glow UnitLevel
+	- When a unit is greater than 10 Levels - Show Elite Threat Glow
+	- When a unit is Elite, Not In Dungeon - Show Elite Threat Glow:      LocalVars.ThreatEliteEnable		LocalVars.ColorThreatTransition
+	- When a unit is Rare, Show Rare Threat Glow
+
+
+
+
+
+
+Notes:::;;
+
+-- how to improve performance?
+	- Unit Updates
+	- Display Updates
+
+	- Unit Data
+		- On Update/Change:
+			* What Indicators need to update?
+			* Do we update everything?
+			* What functions need to run?
+			* How do we tell things to update?  Or should we just update everything?
+				* Is it better to call a function to ask what should get updated?
+				* Or should we just make it simple?
+
+		- Data Categories:
+			- High Frequency Changes (Health, Context, )
+				- Should have a function that requests an update
+			- Medium Frequency Changes (Quest Status?, )
+			- Low Frequency Changes (Name, Class, Race, Faction)
+
+
+
+
+
+
+* If Enemy Player is targetting you, High Threat is active
+    if UnitIsUnit(unit.unitid.."target", "player") then print("Targetted by,", unit.name) end
+
+    * Working on Grap[hite Elite Icon
+
+* Color name on quest mobs?  Where  
+   - Name color is controlled by a color function right now.  "By Quest" Can be an option.
+   - Opacity and Scale Spotlight for Quest mobs
+   - This should be overriden on Elite, Rare, and Powerful mobs.  
+   - Threat Warning mode for Elite/Rare Mobs
+   - 
+
+   Name Color By Significance
+
+   - Spotlight By Name?
+
+
+- Threat Glow: [] Only in Instances
+
+   - Spotlight Elite Mobs in World
+   - Spotlight Rare Mobs
+   - Spotlight on Quest Mobs
+
+   - (Done) Bypass Filter on Quest Mobs
+
+   - Bypass Filter on Elite/Rare Mobs - should avoid hiding rare, or dangerous mobs.
+
+   - Shjould have artwork for Rare mobs, or at least, a spotlight mode
+
+   - Need to enable absorbs.
+

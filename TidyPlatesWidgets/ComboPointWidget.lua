@@ -123,7 +123,7 @@ local function CreateCombatWidget(parent)
 
 
 	-- Required Widget Code
-	local frame = CreateFrame("Frame", nil, parent)
+	local frame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	frame:Hide()
 
 	frame:SetPoint("CENTER", parent, "CENTER")
@@ -160,6 +160,7 @@ local function UpdateWidgetContext(frame, unit)
 
 		--CombatWidgetFrame:SetParent(frame)
 		CombatWidgetFrame:SetParent(WorldFrame)
+		CombatWidgetFrame:ClearAllPoints() 
 		CombatWidgetFrame:SetPoint("CENTER", frame, "CENTER")
 
 		CombatWidgetFrame.nameplateUnitID = unit.unitid
@@ -169,7 +170,7 @@ end
 
 
 -- Watcher Frame
-local WatcherFrame = CreateFrame("Frame", nil, WorldFrame )
+local WatcherFrame = CreateFrame("Frame", nil, WorldFrame , "BackdropTemplate")
 local isEnabled = false
 
 
@@ -204,7 +205,7 @@ end
 
 local function CreateWidgetCarrier(parent)
 	-- Required Widget Code
-	local frame = CreateFrame("Frame", nil, parent)
+	local frame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	--frame:Hide()
 
 	frame:SetHeight(32)

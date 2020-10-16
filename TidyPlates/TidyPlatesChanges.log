@@ -7,25 +7,33 @@ See TidyPlatesChanges.log for cumulative changes:
 
 
 ---------------------------
-6.19.2-Beta4
+6.19.4
 ---------------------------
-* Core: bugs
+* Core: Fix for combo widget.
+* Core: Updated the TOC versions.
+
+
+---------------------------
+6.19.3
+---------------------------
+
+New Features:
+* Core: Damage Absorbs: Absorbs will appear as a lighter shade of the current bar color.
+* Core: Added feature to statusbar widget (Tail Bar) enabling Absorb Display (11.30.2018)
+
+Changes:
+* Unit Filter: Inactive Units: Quest Mobs are considered 'Active', unless you are in an instance
+* Hub: Renamed Color.lua to ColorThreat.lua
+
+
+
+---------------------------
+6.19.2
+---------------------------
+
+* Core: nil frame bugs
 * Hub Widgets: Fixed duplicate code
-
----------------------------
-6.19.2-Beta3
----------------------------
 * AuraWidget: Fixed "Absolute Corruption"
-
----------------------------
-6.19.2-Beta2
----------------------------
-* Fix debug spam
-
----------------------------
-6.19.2-Beta
----------------------------
-
 * Aura Widget: Purgeable Effects: Needs testing!
 * /hub should now bring you to the current profile panel, rather than always going to "Damage"
 * Debuff coloring should look correct now; Fixed the tga file color
@@ -34,47 +42,6 @@ See TidyPlatesChanges.log for cumulative changes:
 	- The new widget will be called "Combat Widget", since it'll display more than just combo points
 	- This update, no new features are added; I just want to see if the anchoring system has issues
 * Unit Filter: Removed QuestInfo override on Inactive Units
-
-
-~~~~~~~~~~~~~~~~~~
-6.19.3+ Forecast:
-~~~~~~~~~~~~~~~~~~
-* Diagnostic Switch -  /tp info
-	- version, themes, hub output, in seperate window
-* Name Text Options; Hide, Change, etc.
-* Combat Widget for Druid, Monk & Rogue
-* Need to work on Threat Widget (Threat is important these days!)
-* (PvP tools are lower priority - Sorry!)
-* Opacity & Scale - Add "Spotlight Quest Mobs" ?
-
-* Start Naming your frames
-* CreateNameplateWidget
-	- Specify FrameName
-	- Specify events to recieve
-	-
-
-
- - Absorbs integrated into the main bars
- 	- Effective Max Health = Max Health + Max Absorb
- 	-Threat- totalAbsorbs = UnitGetTotalAbsorbs("unit"), UNIT_ABSORB_AMOUNT_CHANGED
- 		- [ #### Health ########## | ** Absorb *** | ............] (Total Bar Size = MaxHealth + MaxAbsorb).... Health Bar Color can define the Absorb Color
- 		- Status Bar Needs a secondary Bar, Labeled 'Tail'
-
- 	- Effective Max Health = Max Health + Max Heal Absorb?  Not quite sure on healing absorbs
- 		- totalHealAbsorbs = UnitGetTotalHealAbsorbs("unit"), UNIT_HEAL_ABSORB_AMOUNT_CHANGED
-
- - Combat/Combo Widget
- 	- For all classes that use combo-like resources
- 	- Seperate Widget into 6 Independent Icons
-
- - Auras
- 	- Color/Pip/Symbol Tagging
- 	- Prefix: Tag1, Tag2, Tag3 = Defines priority and color and symbol
-
-
- 	
-
-
 
 
 
@@ -838,7 +805,7 @@ Beta4
 	* Widget authors should hook the existing function, if it's present (No Returns):
 	  Ex.	local OriginalFunction = TidyPlatesGlobal_OnInitialize
 		TidyPlatesGlobal_OnInitialize = function (extended)
-			if not extended.widgets.mywidget then extended.widgets.mywidget = CreateFrame("Frame", nil, extended) end
+			if not extended.widgets.mywidget then extended.widgets.mywidget = CreateFrame("Frame", nil, extended, "BackdropTemplate") end
 			if OriginalFunction then OriginalFunction(extended) end
 		end
 

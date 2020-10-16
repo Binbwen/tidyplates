@@ -169,8 +169,8 @@ do
 		local carrier
 		local frameName = "TidyPlatesCarrier"..numChildren
 
-		carrier = CreateFrame("Frame", frameName, WorldFrame)
-		local extended = CreateFrame("Frame", nil, carrier)
+		carrier = CreateFrame("Frame", frameName, WorldFrame, "BackdropTemplate")
+		local extended = CreateFrame("Frame", nil, carrier, "BackdropTemplate")
 
 		plate.carrier = carrier
 		plate.extended = extended
@@ -180,8 +180,8 @@ do
 		-- Status Bars
 		local healthbar = CreateTidyPlatesStatusbar(extended)
 		local castbar = CreateTidyPlatesStatusbar(extended)
-		local textFrame = CreateFrame("Frame", nil, healthbar)
-		local widgetFrame = CreateFrame("Frame", nil, textFrame)
+		local textFrame = CreateFrame("Frame", nil, healthbar, "BackdropTemplate")
+		local widgetFrame = CreateFrame("Frame", nil, textFrame, "BackdropTemplate")
 
 		textFrame:SetAllPoints()
 
@@ -898,7 +898,7 @@ end -- End Indicator section
 --------------------------------------------------------------------------------------------------------------
 do
 
-	local TidyPlatesCore = CreateFrame("Frame", nil, WorldFrame)
+	local TidyPlatesCore = CreateFrame("Frame", nil, WorldFrame, "BackdropTemplate")
 	TidyPlatesCore:SetFrameStrata("TOOLTIP") 	-- When parented to WorldFrame, causes OnUpdate handler to run close to last
 
 	local events = {}
@@ -923,7 +923,7 @@ do
 
 	-- Update everything
 	local function WorldConditionChanged(...)
-		SetUpdateAll() end
+		SetUpdateAll()
 	end
 
 	-- Update spell currently being cast
@@ -985,7 +985,7 @@ do
 		SetUpdateAll()
 	end
 
-	function events:UNIT_HEALTH_FREQUENT(...)
+	function events:UNIT_HEALTH(...)
 		local unitid = ...
 		local plate = PlatesByUnit[unitid]
 

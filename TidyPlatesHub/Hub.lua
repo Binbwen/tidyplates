@@ -279,6 +279,7 @@ local function BuildHubPanel(panel)
 	panel.OpacityFilterEnemyNPC, F = CreateQuickCheckbutton(objectName.."OpacityFilterEnemyNPC", "Filter Enemy NPC", AlignmentColumn, F, 8)
 	panel.OpacityFilterFriendlyNPC, F = CreateQuickCheckbutton(objectName.."OpacityFilterFriendlyNPC", "Filter Friendly NPC", AlignmentColumn, F, 8)
 	panel.OpacityFilterUntitledFriendlyNPC, F = CreateQuickCheckbutton(objectName.."OpacityFilterUntitledFriendlyNPC", "Filter Non-Titled Friendly NPC", AlignmentColumn, F, 8)
+	--panel.OpacityFilterExcludeQuestMobs, F = CreateQuickCheckbutton(objectName.."OpacityFilterExcludeQuestMobs", "Bypass Filter for Quest Mobs", AlignmentColumn, F, 8)
 
     panel.OpacityFilterPlayers = CreateQuickCheckbutton(objectName.."OpacityFilterPlayers", "Filter Players", AlignmentColumn, panel.FilterScaleLock, OffsetColumnB, 4)
 	panel.OpacityFilterInactive = CreateQuickCheckbutton(objectName.."OpacityFilterInactive", "Filter Inactive", AlignmentColumn, panel.OpacityFilterPlayers, OffsetColumnB)
@@ -423,7 +424,7 @@ local function BuildHubPanel(panel)
 	--[[
 	theme.Default.name.size = 18
 	--]]
-	local ClearCacheButton = CreateFrame("Button", objectName.."ClearCacheButton", AlignmentColumn, "TidyPlatesPanelButtonTemplate")
+	local ClearCacheButton = CreateFrame("Button", objectName.."ClearCacheButton", AlignmentColumn, "TidyPlatesPanelButtonTemplate", "BackdropTemplate")
 	ClearCacheButton:SetPoint("TOPLEFT", F, "BOTTOMLEFT",-6, -18)
 	--ClearCacheButton:SetPoint("TOPLEFT", panel.AdvancedCustomCodeTextbox, "BOTTOMLEFT",-6, -18)
 	ClearCacheButton:SetWidth(300)
@@ -434,7 +435,7 @@ local function BuildHubPanel(panel)
 			print("Tidy Plates Hub: Cleared", count, "entries from cache.")
 		end)
 
-	local BlizzOptionsButton = CreateFrame("Button", objectName.."BlizzButton", AlignmentColumn, "TidyPlatesPanelButtonTemplate")
+	local BlizzOptionsButton = CreateFrame("Button", objectName.."BlizzButton", AlignmentColumn, "TidyPlatesPanelButtonTemplate", "BackdropTemplate")
 	BlizzOptionsButton:SetPoint("TOPLEFT", ClearCacheButton, "BOTTOMLEFT", 0, -16)
 	--BlizzOptionsButton:SetPoint("TOPLEFT", panel.AdvancedCustomCodeTextbox, "BOTTOMLEFT",-6, -18)
 	BlizzOptionsButton:SetWidth(300)
@@ -548,7 +549,7 @@ SlashCmdList['HUB'] = SlashCommandHub
 --]]
 --end
 
---local HubHandler = CreateFrame("Frame")
+--local HubHandler = CreateFrame("Frame", nil, nil, "BackdropTemplate")
 --HubHandler:SetScript("OnEvent", OnLogin)
 --HubHandler:RegisterEvent("PLAYER_LOGIN")
 
