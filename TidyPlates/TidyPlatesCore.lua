@@ -144,7 +144,7 @@ do
 				plate.UpdateMe = false
 				plate.UpdateHealth = false
 
-				plate:GetChildren():Hide()
+				plate.UnitFrame:Hide()
 
 			end
 
@@ -950,8 +950,8 @@ do
 
 		-- We're not going to theme the personal unit bar
 		if plate and not UnitIsUnit("player", unitid) then
-			local childFrame = plate:GetChildren()
-			if childFrame then childFrame:Hide() end
+			local blizzFrame = plate.UnitFrame
+			if blizzFrame then blizzFrame:Hide() end
 			OnShowNameplate(plate, unitid)
 		end
 
