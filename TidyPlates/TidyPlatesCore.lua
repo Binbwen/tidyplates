@@ -1,5 +1,7 @@
 -- Tidy Plates - SMILE! :-D
 
+
+
 ---------------------------------------------------------------------------------------------------------------------
 -- Variables and References
 ---------------------------------------------------------------------------------------------------------------------
@@ -801,23 +803,27 @@ do
 
 
 	-- OnShowCastbar
-	function OnStartCasting(plate, unitid, channeled)
+	function OnStartCasting(plate, unitid, channeled, isNotInitialCall)
 		UpdateReferences(plate)
 		--if not extended:IsShown() then return end
 		if not extended:IsShown() then return end
 
 		local castBar = extended.visual.castbar
 
-		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
+		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, SpellID
 
 		if channeled then
-			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unitid)
+			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(unitid)
 			--name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible = UnitChannelInfo("unit")
 
 			castBar:SetScript("OnUpdate", OnUpdateCastBarReverse)
 		else
-			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unitid)
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarForward)
+		end
+
+		if not name then
+			return
 		end
 
 		if isTradeSkill then return end
@@ -834,7 +840,7 @@ do
 		local r, g, b, a = 1, 1, 0, 1
 
 		if activetheme.SetCastbarColor then
-			r, g, b, a = activetheme.SetCastbarColor(unit)
+			r, g, b, a = activetheme.SetCastbarColor(unit, spellID)
 			if not (r and g and b and a) then return end
 		end
 
@@ -850,6 +856,12 @@ do
 		UpdateIndicator_CustomAlpha()
 
 		castBar:Show()
+
+		if not isNotInitialCall then
+			C_Timer.After(0.03, function()
+				OnStartCasting(plate, unitid, channeled, true)
+			end)
+		end
 
 	end
 
@@ -955,6 +967,9 @@ do
 		end
 	end)
 
+
+
+
 	function CoreEvents:NAME_PLATE_UNIT_ADDED(...)
 		local unitid = ...
 		local plate = GetNamePlateForUnit(unitid);
@@ -975,6 +990,7 @@ do
 		OnHideNameplate(plate, unitid)
 	end
 
+
 	function CoreEvents:PLAYER_TARGET_CHANGED()
 		HasTarget = UnitExists("target") == true;
 		SetUpdateAll()
@@ -994,6 +1010,15 @@ do
 
 		if plate then OnHealthUpdate(plate) end
 	end
+
+
+	function CoreEvents:UNIT_ABSORB_AMOUNT_CHANGED(...)
+		local unitid = ...
+		local plate = PlatesByUnit[unitid]
+
+		if plate then OnHealthUpdate(plate) end
+	end
+
 
 	function CoreEvents:PLAYER_REGEN_ENABLED()
 		InCombat = false
@@ -1034,6 +1059,9 @@ do
 			OnStopCasting(plate)
 		end
 	 end
+
+
+
 
 	function CoreEvents:UNIT_SPELLCAST_CHANNEL_START(...)
 		local unitid = ...

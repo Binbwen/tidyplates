@@ -77,6 +77,18 @@ local function ConvertStringToTable(source, target )
 	end
 end
 
+local function ConvertStringToIntTable(source, target )
+	local temp = ListToTable(strsplit("\n", source))
+	target = wipe(target)
+
+	for index = 1, #temp do
+		local num = tonumber(select(3, temp[index]:find("^(%d+)")) or "")
+		if num then
+			target[num] = true
+		end
+	end
+end
+
 
 local function ConvertDebuffListTable(source, target, order)
 	local temp = ListToTable(strsplit("\n", source))
@@ -126,6 +138,7 @@ TidyPlatesHubHelpers.SetPanelValues = SetPanelValues
 TidyPlatesHubHelpers.MergeProfileValues = MergeProfileValues
 TidyPlatesHubHelpers.ListToTable = ListToTable
 TidyPlatesHubHelpers.ConvertStringToTable = ConvertStringToTable
+TidyPlatesHubHelpers.ConvertStringToIntTable = ConvertStringToIntTable
 TidyPlatesHubHelpers.ConvertDebuffListTable = ConvertDebuffListTable
 TidyPlatesHubHelpers.AddHubFunction = AddHubFunction
 

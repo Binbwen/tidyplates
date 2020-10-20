@@ -44,7 +44,7 @@ local function IsOffTanked(unit)
 	local unitid = unit.unitid
 	if unitid then
 		local targetOf = unitid.."target"
-		local targetIsTank = UnitIsUnit(targetOf, "pet") or ("TANK" ==  UnitGroupRolesAssigned(targetOf))
+		local targetIsTank = (UnitExists(targetOf) and not UnitIsPlayer(targetOf)) or ("TANK" ==  UnitGroupRolesAssigned(targetOf))
 
 		--if LocalVars.EnableOffTankHighlight and IsEnemyTanked(unit) then
 		if LocalVars.EnableOffTankHighlight and targetIsTank then

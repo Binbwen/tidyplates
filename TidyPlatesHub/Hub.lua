@@ -284,6 +284,7 @@ local function BuildHubPanel(panel)
     panel.OpacityFilterPlayers = CreateQuickCheckbutton(objectName.."OpacityFilterPlayers", "Filter Players", AlignmentColumn, panel.FilterScaleLock, OffsetColumnB, 4)
 	panel.OpacityFilterInactive = CreateQuickCheckbutton(objectName.."OpacityFilterInactive", "Filter Inactive", AlignmentColumn, panel.OpacityFilterPlayers, OffsetColumnB)
 	panel.OpacityFilterMini = CreateQuickCheckbutton(objectName.."OpacityFilterMini", "Filter Mini-Mobs", AlignmentColumn, panel.OpacityFilterInactive, OffsetColumnB)
+	
 
 	panel.OpacityCustomFilterLabel = CreateQuickItemLabel(nil, "Filter By Unit Name:", AlignmentColumn, F, 8, 4)
 	panel.OpacityFilterList, L = CreateQuickEditbox(objectName.."OpacityFilterList", AlignmentColumn, panel.OpacityCustomFilterLabel, 8)
@@ -337,6 +338,8 @@ local function BuildHubPanel(panel)
 	-- Warning Border Glow
 	--]]
 
+	--
+
     -- Column 2
 	panel.EnableOffTankHighlight = CreateQuickCheckbutton(objectName.."EnableOffTankHighlight", "Highlight Mobs on Off-Tanks", AlignmentColumn, panel.ThreatLabel, OffsetColumnB)
 	panel.ColorAttackingOtherTank = CreateQuickColorbox(objectName.."ColorAttackingOtherTank", "Attacking another Tank", AlignmentColumn, panel.EnableOffTankHighlight , 16+OffsetColumnB)
@@ -369,6 +372,13 @@ local function BuildHubPanel(panel)
 	panel.SpellCastColorLabel, F = CreateQuickItemLabel(nil, "Cast Bar Colors:", AlignmentColumn, F, 0, 2)
 	panel.ColorNormalSpellCast, F = CreateQuickColorbox(objectName.."ColorNormalSpellCast", "Normal", AlignmentColumn, F , 16)
 	panel.ColorUnIntpellCast, F = CreateQuickColorbox(objectName.."ColorUnIntpellCast", "Un-interruptible", AlignmentColumn, F , 16)
+	panel.SpellTargetPlayerLabel, F = CreateQuickItemLabel(nil, "Spells that target you:", AlignmentColumn, F, 0, 2)
+    panel.SpellCastTargetPlayerEnable, F = CreateQuickCheckbutton(objectName.."SpellCastTargetPlayerEnable", "Color spells cast at player", AlignmentColumn, F)
+	panel.ColorTargetPlayerSpellCast, F = CreateQuickColorbox(objectName.."ColorTargetPlayerSpellCast", "Normal", AlignmentColumn, F , 16)
+	panel.ColorTargetPlayerUnIntpellCast, F = CreateQuickColorbox(objectName.."ColorTargetPlayerUnIntpellCast", "Un-interruptible", AlignmentColumn, F , 16)
+	panel.SpellTargetPlayerListLabel, F = CreateQuickItemLabel(nil, "Spells that will be checked:", AlignmentColumn, F, 0, 2)
+	panel.SpellTargetPlayerList, F = CreateQuickEditbox(objectName.."SpellTargetPlayerList", AlignmentColumn, panel.SpellTargetPlayerListLabel, 8)
+	panel.SpellTargetPlayerList:SetWidth(300)
 
 	--[[
 	------------------------------
@@ -469,6 +479,7 @@ local function BuildHubPanel(panel)
 	-- "RefreshSettings" is called; A) When PLAYER_ENTERING_WORLD is called, and; B) When changes are made to settings
 
 	local ConvertStringToTable = TidyPlatesHubHelpers.ConvertStringToTable
+	local ConvertStringToIntTable = TidyPlatesHubHelpers.ConvertStringToIntTable
 	local ConvertDebuffListTable = TidyPlatesHubHelpers.ConvertDebuffListTable
 	local CallForStyleUpdate = TidyPlatesHubHelpers.CallForStyleUpdate
 
@@ -480,6 +491,7 @@ local function BuildHubPanel(panel)
 		-- Convert Unit Filter Strings
 		ConvertStringToTable(LocalVars.OpacityFilterList, LocalVars.OpacityFilterLookup)
 		ConvertStringToTable(LocalVars.UnitSpotlightList, LocalVars.UnitSpotlightLookup)
+		ConvertStringToIntTable(LocalVars.SpellTargetPlayerList, LocalVars.SpellTargetPlayerLookup)
 	end
 
 	--panel:Hide()

@@ -169,6 +169,11 @@ TidyPlatesHubDefaults = {
 	ColorNormalSpellCast = { r = 252/255, g = 140/255, b = 0, },
 	ColorUnIntpellCast = { r = 0.5137243866920471, g = 0.7529395222663879, b = 0.7647042274475098, },
 	SpellCastEnableFriendly = false,
+	SpellCastTargetPlayerEnable = false,
+	ColorTargetPlayerSpellCast = { r = 252/255, g = 140/255, b = 0, },
+	ColorTargetPlayerUnIntpellCast = { r = 0.5137243866920471, g = 0.7529395222663879, b = 0.7647042274475098, },
+	SpellTargetPlayerList = "",
+	SpellTargetPlayerLookup = {},
 
 	-- Status Text
 	---------------------------------------

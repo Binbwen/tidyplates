@@ -4,8 +4,8 @@
 ## Author: Daniel/Binbwen
 ## Dependencies: TidyPlates, TidyPlatesWidgets
 ## OptionalDeps: TidyPlatesHubDE, TidyPlatesHubES, TidyPlatesHubMX, TidyPlatesHubFR, TidyPlatesHubKR, TidyPlatesHubRU, TidyPlatesHubCN, TidyPlatesHubTW
-## SavedVariables: TidyPlatesHubCache, TidyPlatesHubGlobal
-## SavedVariablesPerCharacter: TidyPlatesHubSettings
+## SavedVariables: TidyPlatesHubCache, TidyPlatesHubGlobal, TidyPlatesHubSettings
+# SavedVariablesPerCharacter: TidyPlatesHubSettings
 
 Defaults.lua
 Helpers.lua

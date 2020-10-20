@@ -814,14 +814,13 @@ do
 		if not extended:IsShown() then return end
 
 		local castBar = extended.visual.castbar
-
-		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
+		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, SpellID 
 
 		if channeled then
-			name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unitid)
+			name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible, SpellID = UnitChannelInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarReverse)
 		else
-			name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unitid)
+			name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, SpellID  = UnitCastingInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarForward)
 		end
 
@@ -838,7 +837,7 @@ do
 		local r, g, b, a = 1, 1, 0, 1
 
 		if activetheme.SetCastbarColor then
-			r, g, b, a = activetheme.SetCastbarColor(unit)
+			r, g, b, a = activetheme.SetCastbarColor(unit, SpellID )
 			if not (r and g and b and a) then return end
 		end
 
