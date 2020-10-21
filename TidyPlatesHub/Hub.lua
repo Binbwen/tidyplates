@@ -373,13 +373,20 @@ local function BuildHubPanel(panel)
 	panel.SpellCastColorLabel, F = CreateQuickItemLabel(nil, "Cast Bar Colors:", AlignmentColumn, F, 0, 2)
 	panel.ColorNormalSpellCast, F = CreateQuickColorbox(objectName.."ColorNormalSpellCast", "Normal", AlignmentColumn, F , 16)
 	panel.ColorUnIntpellCast, F = CreateQuickColorbox(objectName.."ColorUnIntpellCast", "Un-interruptible", AlignmentColumn, F , 16)
-	panel.SpellTargetPlayerLabel, F = CreateQuickItemLabel(nil, "Spells that target you:", AlignmentColumn, F, 0, 2)
-    panel.SpellCastTargetPlayerEnable, F = CreateQuickCheckbutton(objectName.."SpellCastTargetPlayerEnable", "Color spells cast at player", AlignmentColumn, F)
-	panel.ColorTargetPlayerSpellCast, F = CreateQuickColorbox(objectName.."ColorTargetPlayerSpellCast", "Normal", AlignmentColumn, F , 16)
-	panel.ColorTargetPlayerUnIntpellCast, F = CreateQuickColorbox(objectName.."ColorTargetPlayerUnIntpellCast", "Un-interruptible", AlignmentColumn, F , 16)
-	panel.SpellTargetPlayerListLabel, F = CreateQuickItemLabel(nil, "Spells that will be checked:", AlignmentColumn, F, 0, 2)
-	panel.SpellTargetPlayerList, F = CreateQuickEditbox(objectName.."SpellTargetPlayerList", AlignmentColumn, panel.SpellTargetPlayerListLabel, 8)
-	panel.SpellTargetPlayerList:SetWidth(300)
+
+	panel.SpellsCastAtPlayerLabel, F = CreateQuickItemLabel(nil, "Spells that target you:", AlignmentColumn, F, 0, 2)
+    panel.SpellsCastAtPlayerEnable, F = CreateQuickCheckbutton(objectName.."SpellsCastAtPlayerEnable", "Color spells cast at player", AlignmentColumn, F)
+	panel.ColorNormalSpellsCastAtPlayer, F = CreateQuickColorbox(objectName.."ColorNormalSpellsCastAtPlayer", "Normal", AlignmentColumn, F , 16)
+	panel.ColorUnIntSpellsCastAtPlayer, F = CreateQuickColorbox(objectName.."ColorUnIntSpellsCastAtPlayer", "Un-interruptible", AlignmentColumn, F , 16)
+	panel.SpellCastAtPlayerListLabel, F = CreateQuickItemLabel(nil, "Spells that will be checked:", AlignmentColumn, F, 0, 2)
+	panel.SpellCastAtPlayerList, F = CreateQuickEditbox(objectName.."SpellCastAtPlayerList", AlignmentColumn, F, 8)
+	panel.SpellCastAtPlayerList:SetWidth(250)
+
+	panel.SpellCastAtPlayerTip, F = CreateQuickItemLabel(nil, "Tip:|cffCCCCCC Not all spells are actually cast at the current target of a mob. TidyPlates only recolors spells listed here in order to make sure only spells where you know they get cast at the current target get recolored.\n"..
+		"Spells need to be listed with their exact spell ID. Each line can contain up to one spell ID and needs to start with it. Any content after the spell ID or lines without one will be ignored.", AlignmentColumn, panel.SpellsCastAtPlayerLabel, 300)
+	panel.SpellCastAtPlayerTip:SetHeight(300)
+	panel.SpellCastAtPlayerTip:SetWidth(200)
+	panel.SpellCastAtPlayerTip.Text:SetJustifyV("TOP")
 
 	--[[
 	------------------------------
@@ -404,7 +411,7 @@ local function BuildHubPanel(panel)
 	------------------------------
 	--Widgets
 	------------------------------
-	panel.WidgetsLabel, F = CreateQuickHeadingLabel(nil, "Other Widgets", AlignmentColumn, F, 0, 5)
+	panel.WidgetsLabel, F = CreateQuickHeadingLabel(nil, "Other Widgets", AlignmentColumn, SpellCastAtPlayerList, 0, 5)
 	panel.WidgetTargetHighlight = CreateQuickCheckbutton(objectName.."WidgetTargetHighlight", "Show Target Highlight", AlignmentColumn, panel.WidgetsLabel)
 	panel.WidgetEliteIndicator = CreateQuickCheckbutton(objectName.."WidgetEliteIndicator", "Show Elite Icon", AlignmentColumn, panel.WidgetTargetHighlight)
 	panel.ClassEnemyIcon = CreateQuickCheckbutton(objectName.."ClassEnemyIcon", "Show Enemy Class Art", AlignmentColumn, panel.WidgetEliteIndicator)
