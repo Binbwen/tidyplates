@@ -803,21 +803,22 @@ do
 	-- OnShowCastbar
 	function OnStartCasting(plate, unitid, channeled)
 		UpdateReferences(plate)
-		--if not extended:IsShown() then return end
 		if not extended:IsShown() then return end
 
 		local castBar = extended.visual.castbar
 
-		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
+		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID
 
 		if channeled then
-			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unitid)
-			--name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible = UnitChannelInfo("unit")
-
+			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarReverse)
 		else
-			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unitid)
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarForward)
+		end
+
+		if not name then
+			return
 		end
 
 		if isTradeSkill then return end
@@ -834,23 +835,26 @@ do
 		local r, g, b, a = 1, 1, 0, 1
 
 		if activetheme.SetCastbarColor then
-			r, g, b, a = activetheme.SetCastbarColor(unit)
+			r, g, b, a = activetheme.SetCastbarColor(unit, spellID, name)
 			if not (r and g and b and a) then return end
 		end
 
-		castBar:SetStatusBarColor( r, g, b)
+		castBar:SetStatusBarColor(r, g, b)
 
 		castBar:SetAlpha(a or 1)
 
 		if unit.spellIsShielded then
-			   visual.castnostop:Show(); visual.castborder:Hide()
-		else visual.castnostop:Hide(); visual.castborder:Show() end
+            visual.castnostop:Show()
+            visual.castborder:Hide()
+        else
+            visual.castnostop:Hide()
+            visual.castborder:Show()
+        end
 
 		UpdateIndicator_CustomScaleText()
 		UpdateIndicator_CustomAlpha()
 
 		castBar:Show()
-
 	end
 
 
@@ -878,10 +882,10 @@ do
 		local currentTime = GetTime() * 1000
 
 		-- Check to see if there's a spell being cast
-		if UnitCastingInfo(unitid) then OnStartCasting(plate, unitid, false)
-		else
-		-- See if one is being channeled...
-			if UnitChannelInfo(unitid) then OnStartCasting(plate, unitid, true) end
+        if UnitCastingInfo(unitid) then
+            OnStartCasting(plate, unitid, false)
+		elseif UnitChannelInfo(unitid) then	-- See if one is being channeled...
+            OnStartCasting(plate, unitid, true)
 		end
 	end
 
@@ -964,6 +968,7 @@ do
 		OnHideNameplate(plate, unitid)
 	end
 
+
 	function CoreEvents:PLAYER_TARGET_CHANGED()
 		HasTarget = UnitExists("target") == true;
 		SetUpdateAll()
@@ -1008,7 +1013,11 @@ do
 		local plate = GetNamePlateForUnit(unitid)
 
 		if plate then
-			OnStartCasting(plate, unitid, false)
+            OnStartCasting(plate, unitid, false)
+            -- unit targets sometimes change after this call
+            C_Timer.After(0.1, function()
+                OnStartCasting(plate, unitid, false)
+            end)
 		end
 	end
 
@@ -1024,6 +1033,9 @@ do
 		end
 	 end
 
+
+
+
 	function CoreEvents:UNIT_SPELLCAST_CHANNEL_START(...)
 		local unitid = ...
 		if UnitIsUnit("player", unitid) or not ShowCastBars then return end
@@ -1032,6 +1044,10 @@ do
 
 		if plate then
 			OnStartCasting(plate, unitid, true)
+            -- unit targets sometimes change after this call
+            C_Timer.After(0.1, function()
+                OnStartCasting(plate, unitid, true)
+            end)
 		end
 	end
 
