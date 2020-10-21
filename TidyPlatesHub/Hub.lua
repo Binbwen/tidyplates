@@ -382,8 +382,7 @@ local function BuildHubPanel(panel)
 	panel.SpellCastAtPlayerList, F = CreateQuickEditbox(objectName.."SpellCastAtPlayerList", AlignmentColumn, F, 8)
 	panel.SpellCastAtPlayerList:SetWidth(250)
 
-	panel.SpellCastAtPlayerTip, F = CreateQuickItemLabel(nil, "Tip:|cffCCCCCC Not all spells are actually cast at the current target of a mob. TidyPlates only recolors spells listed here in order to make sure only spells where you know they get cast at the current target get recolored.\n"..
-		"Spells need to be listed with their exact spell ID. Each line can contain up to one spell ID and needs to start with it. Any content after the spell ID or lines without one will be ignored.", AlignmentColumn, panel.SpellsCastAtPlayerLabel, 300)
+	panel.SpellCastAtPlayerTip, F = CreateQuickItemLabel(nil, "Tip:|cffCCCCCC Not all spells are actually cast at the current target of a mob. TidyPlates only recolors spells listed here in order to make sure only spells where you know they get cast at the current target get recolored.\nSpells need to be listed with their exact spell ID or name. Each line needs to contain exactly one spell ID or name. Lines starting with # will be ignored. For example this would add Ice Lance (spell ID 30455), Frostbolt, but not Shadowbolt:\n\n30455\nFrostbolt\n# Shadowbolt", AlignmentColumn, panel.SpellsCastAtPlayerLabel, 300)
 	panel.SpellCastAtPlayerTip:SetHeight(300)
 	panel.SpellCastAtPlayerTip:SetWidth(200)
 	panel.SpellCastAtPlayerTip.Text:SetJustifyV("TOP")
@@ -411,7 +410,7 @@ local function BuildHubPanel(panel)
 	------------------------------
 	--Widgets
 	------------------------------
-	panel.WidgetsLabel, F = CreateQuickHeadingLabel(nil, "Other Widgets", AlignmentColumn, SpellCastAtPlayerList, 0, 5)
+	panel.WidgetsLabel, F = CreateQuickHeadingLabel(nil, "Other Widgets", AlignmentColumn, panel.SpellCastAtPlayerList, 0, 5)
 	panel.WidgetTargetHighlight = CreateQuickCheckbutton(objectName.."WidgetTargetHighlight", "Show Target Highlight", AlignmentColumn, panel.WidgetsLabel)
 	panel.WidgetEliteIndicator = CreateQuickCheckbutton(objectName.."WidgetEliteIndicator", "Show Elite Icon", AlignmentColumn, panel.WidgetTargetHighlight)
 	panel.ClassEnemyIcon = CreateQuickCheckbutton(objectName.."ClassEnemyIcon", "Show Enemy Class Art", AlignmentColumn, panel.WidgetEliteIndicator)
@@ -487,7 +486,6 @@ local function BuildHubPanel(panel)
 	-- "RefreshSettings" is called; A) When PLAYER_ENTERING_WORLD is called, and; B) When changes are made to settings
 
 	local ConvertStringToTable = TidyPlatesHubHelpers.ConvertStringToTable
-	local ConvertStringToIntTable = TidyPlatesHubHelpers.ConvertStringToIntTable
 	local ConvertDebuffListTable = TidyPlatesHubHelpers.ConvertDebuffListTable
 	local CallForStyleUpdate = TidyPlatesHubHelpers.CallForStyleUpdate
 
@@ -498,8 +496,8 @@ local function BuildHubPanel(panel)
 		ConvertDebuffListTable(LocalVars.WidgetsDebuffTrackList, LocalVars.WidgetsDebuffLookup, LocalVars.WidgetsDebuffPriority)
 		-- Convert Unit Filter Strings
 		ConvertStringToTable(LocalVars.OpacityFilterList, LocalVars.OpacityFilterLookup)
-		ConvertStringToTable(LocalVars.UnitSpotlightList, LocalVars.UnitSpotlightLookup)
-		ConvertStringToIntTable(LocalVars.SpellTargetPlayerList, LocalVars.SpellTargetPlayerLookup)
+        ConvertStringToTable(LocalVars.UnitSpotlightList, LocalVars.UnitSpotlightLookup)
+		ConvertStringToTable(LocalVars.SpellCastAtPlayerList, LocalVars.SpellCastAtPlayerLookup)
 	end
 
 	--panel:Hide()
