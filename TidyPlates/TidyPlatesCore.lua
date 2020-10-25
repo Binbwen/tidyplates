@@ -944,9 +944,20 @@ do
 	end
 
 	function CoreEvents:NAME_PLATE_CREATED(...)
-		local plate = ...
+        local plate = ...
 		OnNewNameplate(plate)
-	end
+    end
+
+    hooksecurefunc(NamePlateDriverFrame, "AcquireUnitFrame", function(plate)
+        if not plate.isModified then
+            plate.isModified = true
+            hooksecurefunc(plate.UnitFrame, "Show", function(self)
+                if self.unit ~= "player" then
+                    self:Hide()
+                end
+            end)
+        end
+    end)
 
 	function CoreEvents:NAME_PLATE_UNIT_ADDED(...)
 		local unitid = ...
@@ -1021,8 +1032,7 @@ do
 		end
 	end
 
-
-	 function CoreEvents:UNIT_SPELLCAST_STOP(...)
+	function CoreEvents:UNIT_SPELLCAST_STOP(...)
 		local unitid = ...
 		if UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
@@ -1030,11 +1040,8 @@ do
 
 		if plate then
 			OnStopCasting(plate)
-		end
-	 end
-
-
-
+	    end
+	end
 
 	function CoreEvents:UNIT_SPELLCAST_CHANNEL_START(...)
 		local unitid = ...
