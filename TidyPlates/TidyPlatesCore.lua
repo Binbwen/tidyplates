@@ -4,7 +4,7 @@
 -- Variables and References
 ---------------------------------------------------------------------------------------------------------------------
 local addonName, TidyPlatesInternal = ...
-local TidyPlatesCore = CreateFrame("Frame", nil, WorldFrame, "BackdropTemplate")
+local TidyPlatesCore = CreateFrame("Frame", nil, WorldFrame)
 
 TidyPlates = {}
 TidyPlatesDebug = false
@@ -177,8 +177,8 @@ do
 		local carrier
 		local frameName = "TidyPlatesCarrier"..numChildren
 
-		carrier = CreateFrame("Frame", frameName, WorldFrame, "BackdropTemplate")
-		local extended = CreateFrame("Frame", nil, carrier, "BackdropTemplate")
+		carrier = CreateFrame("Frame", frameName, WorldFrame)
+		local extended = CreateFrame("Frame", nil, carrier)
 
 		plate.carrier = carrier
 		plate.extended = extended
@@ -188,8 +188,8 @@ do
 		-- Status Bars
 		local healthbar = CreateTidyPlatesStatusbar(extended)
 		local castbar = CreateTidyPlatesStatusbar(extended)
-		local textFrame = CreateFrame("Frame", nil, healthbar, "BackdropTemplate")
-		local widgetParent = CreateFrame("Frame", nil, textFrame, "BackdropTemplate")
+		local textFrame = CreateFrame("Frame", nil, healthbar)
+		local widgetParent = CreateFrame("Frame", nil, textFrame)
 
 		textFrame:SetAllPoints()
 

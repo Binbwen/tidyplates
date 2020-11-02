@@ -805,7 +805,7 @@ Beta4
 	* Widget authors should hook the existing function, if it's present (No Returns):
 	  Ex.	local OriginalFunction = TidyPlatesGlobal_OnInitialize
 		TidyPlatesGlobal_OnInitialize = function (extended)
-			if not extended.widgets.mywidget then extended.widgets.mywidget = CreateFrame("Frame", nil, extended, "BackdropTemplate") end
+			if not extended.widgets.mywidget then extended.widgets.mywidget = CreateFrame("Frame", nil, extended) end
 			if OriginalFunction then OriginalFunction(extended) end
 		end
 
