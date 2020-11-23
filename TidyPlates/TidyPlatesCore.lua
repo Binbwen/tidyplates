@@ -948,11 +948,13 @@ do
 		OnNewNameplate(plate)
     end
 
+    UnitNameplateShowsWidgetsOnlyTest = UnitNameplateShowsWidgetsOnly
+
     hooksecurefunc(NamePlateDriverFrame, "AcquireUnitFrame", function(plate)
         if not plate.isModified then
             plate.isModified = true
             hooksecurefunc(plate.UnitFrame, "Show", function(self)
-                if self.unit ~= "player" then
+                if self.unit ~= "player" and not UnitNameplateShowsWidgetsOnlyTest(self.unit) then
                     self:Hide()
                 end
             end)
@@ -961,14 +963,16 @@ do
 
 	function CoreEvents:NAME_PLATE_UNIT_ADDED(...)
 		local unitid = ...
-		local plate = GetNamePlateForUnit(unitid);
-
+        local plate = GetNamePlateForUnit(unitid);
+        
 		-- We're not going to theme the personal unit bar
-		if plate and not UnitIsUnit("player", unitid) then
+		if plate and not UnitIsUnit("player", unitid) and not UnitNameplateShowsWidgetsOnlyTest(unitid) then
 			local blizzFrame = plate.UnitFrame
 			if blizzFrame then blizzFrame:Hide() end
 			OnShowNameplate(plate, unitid)
-		end
+        else
+            plate.UnitFrame:Show()
+        end
 
 	end
 

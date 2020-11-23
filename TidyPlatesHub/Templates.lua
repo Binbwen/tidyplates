@@ -459,7 +459,7 @@ local function CreateInterfacePanel(objectName, panelTitle, parentFrameName)
 	-- Panel
 	------------------------------
     local panel = CreateFrame( "Frame", objectName.."_InterfaceOptionsPanel", UIParent, "BackdropTemplate")
-    panel:SetIgnoreParentScale(true)
+    --panel:SetIgnoreParentScale(true)
 	panel.objectName = objectName
 	panel:SetBackdrop({	bgFile = "Interface/Tooltips/UI-Tooltip-Background", --bgFile = "Interface/FrameGeneral/UI-Background-Marble",
 						edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
