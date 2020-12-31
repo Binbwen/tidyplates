@@ -952,7 +952,7 @@ do
         if not plate.isModified then
             plate.isModified = true
             hooksecurefunc(plate.UnitFrame, "Show", function(self)
-                if self.unit ~= "player" and not UnitNameplateShowsWidgetsOnly(self.unit) then
+                if not UnitIsUnit(self.unit, "player") and not UnitNameplateShowsWidgetsOnly(self.unit) then
                     self:Hide()
                 end
             end)
