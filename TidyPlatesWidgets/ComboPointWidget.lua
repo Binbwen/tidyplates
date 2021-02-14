@@ -41,6 +41,7 @@ end
 --* unfortunately the Update function is on the anchor on each frame
 --* but the widgetFrame should be unique
 local widgetFrame
+local blizzClassNameplate
 
 local function UpdateWidgetContext(frame, unit)
 	-- Reanchor & Update Widget
@@ -80,6 +81,16 @@ function TidyPlatesWidgets.CreateComboPointWidget(parent)
 	--frame.Hide = function() ClearWidgetContext(frame); frame:_Hide() end
 
 	if not isEnabled then
+        blizzClassNameplate = NamePlateDriverFrame:GetClassNameplateBar()
+        if blizzClassNameplate then
+            blizzClassNameplate:HideNameplateBar()
+            function blizzClassNameplate:ShowNameplateBar()
+            end
+        else
+            function ClassNameplateBar:ShowNameplateBar()
+            end
+        end
+
         local widget = CreateFrame("Frame", nil, WorldFrame)
         widgetFrame = widget
         widget.Update = UpdatePowerWidget
