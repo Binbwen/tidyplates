@@ -29,6 +29,7 @@ TidyPlatesHubDefaults = {
 	StyleForceBarsOnTargets = false,
 
 	StyleHeadlineNeutral = false,
+    StyleHeadlineNeutralCombatOverride = false,
 	StyleHeadlineMiniMobs = false,
 
 	ColorEnemyBarMode =  1,

@@ -86,6 +86,8 @@ local function BuildHubPanel(panel)
 
 	panel.StyleHeadlineLabel, F = CreateQuickItemLabel(nil, "Headline View (Text-Only):", AlignmentColumn, F, 0, 2)
 	panel.StyleHeadlineNeutral, F = CreateQuickCheckbutton(objectName.."StyleHeadlineNeutral", "Force Headline on Neutral Units", AlignmentColumn, F, 16, 2)
+    panel.StyleHeadlineNeutralCombatOverride, F = CreateQuickCheckbutton(objectName.."StyleHeadlineNeutralCombatOverride", "Ignore while in combat", AlignmentColumn, F, 40, 0)
+    panel.StyleHeadlineNeutralCombatOverride:SetScale(.8)
 	panel.StyleHeadlineOutOfCombat, F = CreateQuickCheckbutton(objectName.."StyleHeadlineOutOfCombat", "Force Headline while Out-of-Combat", AlignmentColumn, F, 16, 0)
 	panel.StyleHeadlineMiniMobs, F = CreateQuickCheckbutton(objectName.."StyleHeadlineMiniMobs", "Force Headline on Mini-Mobs", AlignmentColumn, F, 16, 0)
 

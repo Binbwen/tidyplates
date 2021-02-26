@@ -965,8 +965,7 @@ do
 
 	function CoreEvents:NAME_PLATE_UNIT_ADDED(...)
 		local unitid = ...
-        local plate = GetNamePlateForUnit(unitid);
-        
+        local plate = GetNamePlateForUnit(unitid)
 		-- We're not going to theme the personal unit bar
 		if plate and not UnitIsUnit("player", unitid) and not UnitNameplateShowsWidgetsOnly(unitid) then
             if plate.UnitFrame then
@@ -979,7 +978,7 @@ do
 
 	function CoreEvents:NAME_PLATE_UNIT_REMOVED(...)
 		local unitid = ...
-		local plate = GetNamePlateForUnit(unitid);
+		local plate = GetNamePlateForUnit(unitid)
 
 		OnHideNameplate(plate, unitid)
 	end
