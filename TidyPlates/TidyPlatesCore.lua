@@ -20,7 +20,7 @@ local GetNamePlateForUnit = C_NamePlate.GetNamePlateForUnit
 -- Internal Data
 local Plates, PlatesVisible, PlatesFading, GUID = {}, {}, {}, {}	            	-- Plate Lists
 local PlatesByUnit = {}
-local nameplate, extended, bars, regions, visual, carrier, plateid			    	-- Temp/Local References
+local nameplate, extended, bars, regions, visual, carrier, plateid, threatborder	-- Temp/Local References
 local unit, unitcache, style, stylename, unitchanged				    			-- Temp/Local References
 local numChildren = -1                                                              -- Cache the current number of plates
 local activetheme = {}                                                              -- Table Placeholder
@@ -414,7 +414,7 @@ do
 		-- plate:GetChildren():Hide()
 
 		-- Gather Information
-		unitid = PlatesVisible[plate]
+		local unitid = PlatesVisible[plate]
 		UpdateReferences(plate)
 
 		UpdateUnitIdentity(unitid)
@@ -425,7 +425,7 @@ do
 
 	-- OnHealthUpdate
 	function OnHealthUpdate(plate)
-		unitid = PlatesVisible[plate]
+		local unitid = PlatesVisible[plate]
 
 		UpdateUnitCondition(plate, unitid)
 		ProcessUnitChanges()
@@ -438,7 +438,7 @@ do
 		plate.UpdateMe = true
 		extended.unitcache = ClearIndices(extended.unitcache)
 		extended.stylename = ""
-		unitid = PlatesVisible[plate]
+		local unitid = PlatesVisible[plate]
 
 		OnShowNameplate(plate, unitid)
 	end
@@ -647,10 +647,18 @@ do
 
 	-- UpdateIndicator_Level:
 	function UpdateIndicator_Level()
-		if unit.isBoss and style.skullicon.show then visual.level:Hide(); visual.skullicon:Show() else visual.skullicon:Hide() end
+		if unit.isBoss and style.skullicon.show then
+            visual.level:Hide()
+            visual.skullicon:Show()
+        else
+            visual.skullicon:Hide()
+        end
 
-		if unit.level < 0 then visual.level:SetText("")
-		else visual.level:SetText(unit.level) end
+		if unit.level < 0 then
+            visual.level:SetText("")
+		else
+            visual.level:SetText(unit.level)
+        end
 		visual.level:SetTextColor(unit.levelcolorRed, unit.levelcolorGreen, unit.levelcolorBlue)
 	end
 
