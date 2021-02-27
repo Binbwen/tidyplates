@@ -110,9 +110,9 @@ TidyPlatesUtility.updateTable = updatetable
 -- GameTooltipScanner
 ------------------------------------------
 local ScannerName = "TidyPlatesScanningTooltip"
-local TooltipScanner = CreateFrame( "GameTooltip", ScannerName , nil, "GameTooltipTemplate") -- Tooltip name cannot be nil
+local TooltipScanner = CreateFrame( "GameTooltip", ScannerName , nil, "GameTooltipTemplate")
 TooltipScanner.name = ScannerName
-TooltipScanner:SetOwner( WorldFrame, "ANCHOR_NONE" )
+TooltipScanner:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 ------------------------------------------
 -- Unit Subtitles/NPC Roles
@@ -121,45 +121,41 @@ local UnitSubtitles = {}
 local function GetUnitSubtitle(unit)
 	local unitid = unit.unitid
 
-	-- Bypass caching while in an instance
-	--if inInstance or (not UnitExists(unitid)) then return end
-	if ( UnitIsPlayer(unitid) or UnitPlayerControlled(unitid) or (not UnitExists(unitid))) then return end
+	if UnitIsPlayer(unitid)
+       or UnitPlayerControlled(unitid)
+       or not UnitExists(unitid) then
+            return
+    end
 
-	--local guid = UnitGUID(unitid)
-	local name = unit.name
-	local subTitle = UnitSubtitles[name]
+	local subTitle = UnitSubtitles[unit.name]
 
 	if not subTitle then
 		TooltipScanner:ClearLines()
  		TooltipScanner:SetUnit(unitid)
 
- 		local TooltipTextLeft1 = _G[ScannerName.."TextLeft1"]
- 		local TooltipTextLeft2 = _G[ScannerName.."TextLeft2"]
- 		local TooltipTextLeft3 = _G[ScannerName.."TextLeft3"]
- 		local TooltipTextLeft4 = _G[ScannerName.."TextLeft4"]
+ 		local line1 = _G[ScannerName.."TextLeft1"]
+ 		local line2 = _G[ScannerName.."TextLeft2"]
 
- 		name = TooltipTextLeft1:GetText()
+ 		local text1 = line1:GetText()
+		if not text1 then return end
 
-		if name then name = gsub( gsub( (name), "|c........", "" ), "|r", "" ) else return end	-- Strip color escape sequences: "|c"
-		if name ~= UnitName(unitid) then return end	-- Avoid caching information for the wrong unit
+        local name = text1:gsub("|c........", ""):gsub("|r", "")
+		if name ~= UnitName(unitid) then return end
 
-
-		-- Tooltip Format Priority:  Faction, Description, Level
-		local toolTipText = TooltipTextLeft2:GetText() or "UNKNOWN"
-
-		if string.match(toolTipText, UNIT_LEVEL_TEMPLATE) then
+		local text2 = line2:GetText() or "UNKNOWN"
+		if text2:match(UNIT_LEVEL_TEMPLATE) then
 			subTitle = ""
 		else
-			subTitle = toolTipText
+			subTitle = text2
 		end
 
 		UnitSubtitles[name] = subTitle
 	end
-
-	-- Maintaining a cache allows us to avoid the hit
-	if subTitle == "" then return nil
-	else return subTitle end
-
+    
+    print(subTitle, subTitle ~= "")
+	if subTitle ~= "" then
+        return subTitle
+    end
 end
 
 TidyPlatesUtility.GetUnitSubtitle = GetUnitSubtitle
