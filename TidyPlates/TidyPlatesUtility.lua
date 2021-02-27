@@ -151,8 +151,7 @@ local function GetUnitSubtitle(unit)
 
 		UnitSubtitles[name] = subTitle
 	end
-    
-    print(subTitle, subTitle ~= "")
+
 	if subTitle ~= "" then
         return subTitle
     end
