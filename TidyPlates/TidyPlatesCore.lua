@@ -647,6 +647,12 @@ do
 
 	-- UpdateIndicator_Level:
 	function UpdateIndicator_Level()
+        if not style.level.show then
+            visual.level:Hide()
+            visual.skullicon:Hide()
+            return
+        end
+
 		if unit.isBoss and style.skullicon.show then
             visual.level:Hide()
             visual.skullicon:Show()
