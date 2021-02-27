@@ -110,8 +110,9 @@ TidyPlatesUtility.updateTable = updatetable
 -- GameTooltipScanner
 ------------------------------------------
 local ScannerName = "TidyPlatesScanningTooltip"
-local TooltipScanner = CreateFrame( "GameTooltip", ScannerName , nil, "GameTooltipTemplate"); -- Tooltip name cannot be nil
-TooltipScanner:SetOwner( WorldFrame, "ANCHOR_NONE" );
+local TooltipScanner = CreateFrame( "GameTooltip", ScannerName , nil, "GameTooltipTemplate") -- Tooltip name cannot be nil
+TooltipScanner.name = ScannerName
+TooltipScanner:SetOwner( WorldFrame, "ANCHOR_NONE" )
 
 ------------------------------------------
 -- Unit Subtitles/NPC Roles
@@ -166,49 +167,76 @@ TidyPlatesUtility.GetUnitSubtitle = GetUnitSubtitle
 ------------------------------------------
 -- Quest Info
 ------------------------------------------
-local function GetTooltipLineText(lineNumber)
-        local tooltipLine = _G[ScannerName .. "TextLeft" .. lineNumber]
-        local tooltipText = tooltipLine:GetText()
-        local r, g, b = tooltipLine:GetTextColor()
+local playerName = UnitName("player")
+TooltipScanner.currLine = 3
+TooltipScanner.ClearLinesOld = TooltipScanner.ClearLines
+function TooltipScanner:ClearLines()
+    self.currLine = 3
+    self:ClearLinesOld()
+end
+function TooltipScanner:GetNextLine()
+    local tooltipLine = _G[self.name .. "TextLeft" .. self.currLine]
+    if not tooltipLine then return end
+    self.currLine = self.currLine + 1
 
-        return tooltipText, r, g, b
+    local tooltipText = tooltipLine:GetText()
+    local r, g, b = tooltipLine:GetTextColor()
+    local offset = (select(4, tooltipLine:GetPoint(2)) or 0)
+    local isProgress = 27 < offset and offset < 29     --* offset is not an int
+
+    return tooltipText, r, g, b, isProgress
+end
+function TooltipScanner:IterateLines()
+    return self.GetNextLine, self
 end
 
-local function GetUnitQuestInfo(unit)
+function TidyPlatesUtility.GetUnitQuestInfo(unit)
     local unitid = unit.unitid
-    local questName
-    local questProgress
+    local questList = {}
+    local isGroup = false
 
     if not unitid then return end
 
-    -- Tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+    TooltipScanner:SetOwner(WorldFrame, "ANCHOR_NONE")
     TooltipScanner:ClearLines()
     TooltipScanner:SetUnit(unitid)
 
-    for line = 3, TooltipScanner:NumLines() do
-        local tooltipText, r, g, b = GetTooltipLineText( line )
+    for text, r, g, b in TooltipScanner:IterateLines() do
 
-        -- If the Quest Name exists, the following tooltip lines list quest progress
-        if questName then
-            -- Strip out the name of the player that is on the quest.
-            local playerName, questNote = string.match(tooltipText, "(%g*) ?%- (.*)")
+        if b == 0 and r > 0.99 and g > 0.82 then    -- quest names have this color
+            local quest = {}
+            quest.name = text
 
-            if (playerName == "") or (playerName == UnitName("player")) then
-                questProgress = questNote
-                break
+            local nextText, _, _, _, nextIsProgess = TooltipScanner:GetNextLine()
+            quest.player = nextIsProgess and "" or nextText
+            if not nextIsProgess then
+                isGroup = true
             end
 
-        elseif b == 0 and r > 0.99 and g > 0.82 then
-            -- Note: Quest Name Heading is colored Yellow
-            questName = tooltipText
+            local progText = nextIsProgess and nextText or TooltipScanner:GetNextLine()
+            quest.progress = progText:match("(%d+/%d+)")
+                             or progText:match("([%d%.]+%%)")
+                             or progText
+
+            table.insert(questList, quest)
         end
     end
 
-    return questName, questProgress
+    if isGroup then
+        for i, quest in ipairs(questList) do
+            if quest.player == playerName then
+                return quest.name, quest.progress
+            end
+        end
+    end
+
+    local quest = questList[1]
+    if not quest then
+        return
+    else
+        return quest.name, quest.progress
+    end
 end
-
-
-TidyPlatesUtility.GetUnitQuestInfo = GetUnitQuestInfo
 
 ------------------------
 -- Threat Function
