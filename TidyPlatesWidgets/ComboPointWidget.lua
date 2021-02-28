@@ -17,8 +17,8 @@ local powerID = powerTbl[select(2, UnitClass("player"))]
 
 
 local function UpdatePowerWidget(self, event)
-
-	if self.nameplateUnitID
+	if  powerID
+        and self.nameplateUnitID
         and UnitIsUnit("target", self.nameplateUnitID)
         and UnitCanAttack("player", "target") then
 
@@ -78,7 +78,10 @@ function TidyPlatesWidgets.CreateComboPointWidget(parent)
 	widgetAnchorFrame.UpdateContext = UpdateWidgetContext
 	widgetAnchorFrame.Update = function() end
 	--frame._Hide = frame.Hide
-	--frame.Hide = function() ClearWidgetContext(frame); frame:_Hide() end
+	--[[frame.Hide = function()
+        ClearWidgetContext(frame)
+        frame:_Hide()
+    end]]
 
 	if not isEnabled then
         blizzClassNameplate = NamePlateDriverFrame:GetClassNameplateBar()
