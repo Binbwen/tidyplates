@@ -220,8 +220,8 @@ function AuraWidget.Create(parent)
 
 	-- Create Base frame
 	local frame = CreateFrame("Frame", nil, parent)
-    frame._Hide = frame.Hide
     Mixin(frame, AuraWidget)
+    frame:RegisterEvent("OnHide", frame.OnHide)
 
 	frame:SetWidth(128); frame:SetHeight(32); frame:Show()
 	--frame.PollFunction = UpdateWidgetTime
@@ -237,11 +237,10 @@ function AuraWidget.Create(parent)
 	return frame
 end
 
-function AuraWidget:Hide()
+function AuraWidget:OnHide()
     for unitid, widget in pairs(WidgetList) do
 		if self == widget then WidgetList[unitid] = nil end
 	end
-    self:_Hide()
 end
 
 function AuraWidget:Update()
