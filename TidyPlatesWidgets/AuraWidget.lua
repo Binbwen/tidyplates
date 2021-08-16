@@ -153,7 +153,7 @@ local function UpdateIcon(frame, aura)
         end
 
 		if duration > 0 and expiration > 0 then
-			SetCooldown(frame.Cooldown, expiration - duration, duration + .25)
+			SetCooldown(frame.Cooldown, expiration - duration, duration)
 		end
 
         UpdateWidgetTime(frame, expiration)
