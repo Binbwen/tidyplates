@@ -176,116 +176,95 @@ local function AuraSortFunction(a,b)
 end
 
 
-local function UpdateWidget(frame)
+function UpdateWidget(frame)
     local unitid = frame.unitid
+    if not unitid then return end
 
-		if not unitid then return end
+    local unitReaction      = UnitIsFriend("player", unitid)
+                              and AURA_TARGET_FRIENDLY
+                              or AURA_TARGET_HOSTILE
+    local AuraIconFrames    = frame.AuraIconFrames
+    local storedAuras       = {}
+    local storedAuraCount   = 0
+    local auraIndex         = 0
+    local moreAuras         = true
+    local searchedDebuffs   = false
+    local searchedBuffs     = false
+    local auraFilter        = "HARMFUL"
 
-		local unitReaction
-		if UnitIsFriend("player", unitid) then unitReaction = AURA_TARGET_FRIENDLY
-		else unitReaction = AURA_TARGET_HOSTILE end
+    -- Cache displayable auras
+    ------------------------------------------------------------------------------------------------------
+    -- This block will go through the auras on the unit and make a list of those that should
+    -- be displayed, listed by priority.
 
-		local AuraIconFrames = frame.AuraIconFrames
-		local storedAuras = {}
-		local storedAuraCount = 0
+    repeat
+        auraIndex = auraIndex + 1
+        local aura = {}
 
-		-- Cache displayable auras
-		------------------------------------------------------------------------------------------------------
-		-- This block will go through the auras on the unit and make a list of those that should
-		-- be displayed, listed by priority.
-		local auraIndex = 0
-		local moreAuras = true
+        do
+            --[[ 8.0
+            name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, 
+                isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, ...
+                            = UnitAura("unit", index[, "filter"])
+            --]]
 
-		local searchedDebuffs, searchedBuffs = false, false
-		local auraFilter = "HARMFUL"
+            local name, icon, stacks, auraType, duration, expiration, caster, stealable, personal, spellid, canApply, bossdebuff = UnitAura(unitid, auraIndex, auraFilter)
+            aura.name = name
+            aura.texture = icon
+            aura.stacks = stacks
+            aura.type = auraType
+            aura.effect = auraFilter
+            aura.duration = duration
+            aura.stealable = stealable
+            aura.bossdebuff = bossdebuff
+            aura.reaction = unitReaction
+            aura.expiration = expiration
+            aura.caster = caster
+            aura.spellid = spellid
+            aura.unit = unitid 		-- unitid of the plate
+        end
 
-		repeat
+        -- Auras are evaluated by an external function
+        -- Pre-filtering before the icon grid is populated
+        if aura.name then
+            local show, priority, r, g, b = AuraFilterFunction(aura)
+            -- Store Order/Priority
+            if show then
+                aura.priority = priority or 10
+                aura.r, aura.g, aura.b = r, g, b
+                storedAuraCount = storedAuraCount + 1
+                storedAuras[storedAuraCount] = aura
+            end
+        else
+            if auraFilter == "HARMFUL" then
+                searchedDebuffs = true
+                auraFilter = "HELPFUL"
+                auraIndex = 0
+            else
+                searchedBuffs = true
+            end
+        end
 
-			auraIndex = auraIndex + 1
+    until (searchedDebuffs and searchedBuffs)
 
-			local aura = {}
+    --* Display Auras
+    local displayedAuraCount = min(storedAuraCount, DebuffLimit)
+    if displayedAuraCount > 0 then
+        frame:Show()
+        sort(storedAuras, AuraSortFunction)
+        for index = 1, displayedAuraCount do
+            local aura = storedAuras[index]
+            if aura.spellid and aura.expiration then
+                UpdateIcon(AuraIconFrames[i], aura.texture, aura.duration, aura.expiration, aura.stacks, aura.r, aura.g, aura.b)
+            end
+        end
+        frame.currentAuraCount = displayedAuraCount
+    end
 
-			do
-				--[[ 8.0
-				name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, 
-					isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, ...
-				    			= UnitAura("unit", index[, "filter"])
-				--]]
-
-				local name, icon, stacks, auraType, duration, expiration, caster, stealable, personal, spellid, canApply, bossdebuff = UnitAura(unitid, auraIndex, auraFilter)
-
-
-				aura.name = name
-				aura.texture = icon
-				aura.stacks = stacks
-				aura.type = auraType
-				aura.effect = auraFilter
-				aura.duration = duration
-				aura.stealable = stealable
-				aura.bossdebuff = bossdebuff
-				aura.reaction = unitReaction
-				aura.expiration = expiration
-				aura.caster = caster
-				aura.spellid = spellid
-				aura.unit = unitid 		-- unitid of the plate
-
-			end
-
-
-
-			-- Auras are evaluated by an external function
-			-- Pre-filtering before the icon grid is populated
-			if aura.name then
-				local show, priority, r, g, b = AuraFilterFunction(aura)
-					--print(aura.name, show, priority, r, g, b)
-				--print(aura.name, show, priority)
-				--show = true
-				-- Store Order/Priority
-				if show then
-
-					aura.priority = priority or 10
-					aura.r, aura.g, aura.b = r, g, b
-
-					storedAuraCount = storedAuraCount + 1
-					storedAuras[storedAuraCount] = aura
-				end
-			else
-				if auraFilter == "HARMFUL" then
-					searchedDebuffs = true
-					auraFilter = "HELPFUL"
-					auraIndex = 0
-				else
-					searchedBuffs = true
-				end
-			end
-
-		until (searchedDebuffs and searchedBuffs)
-
-
-		-- Display Auras
-		------------------------------------------------------------------------------------------------------
-		local AuraSlotCount = 1
-		if storedAuraCount > 0 then
-			frame:Show()
-			sort(storedAuras, AuraSortFunction)
-
-			for index = 1,  storedAuraCount do
-				if AuraSlotCount > DebuffLimit then break end
-				local aura = storedAuras[index]
-				if aura.spellid and aura.expiration then
-
-					-- Call function to display the aura
-					UpdateIcon(AuraIconFrames[AuraSlotCount], aura.texture, aura.duration, aura.expiration, aura.stacks, aura.r, aura.g, aura.b)
-
-					AuraSlotCount = AuraSlotCount + 1
-					frame.currentAuraCount = index
-				end
-			end
-
-		end
-
-		-- Clear Extra Slots
-		for AuraSlotEmpty = AuraSlotCount, DebuffLimit do UpdateIcon(AuraIconFrames[AuraSlotEmpty]) end
+    -- Clear Extra Slots
+    for i = displayedAuraCount, DebuffLimit do
+        UpdateIcon(AuraIconFrames[i])
+    end
 
 end
 
