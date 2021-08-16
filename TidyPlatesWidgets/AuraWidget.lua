@@ -1,21 +1,9 @@
-
-	--Spinning Cooldown Frame
-	--[[
-	frame.Cooldown = CreateFrame("Cooldown", nil, frame, "TidyPlatesAuraWidgetCooldown")
-	frame.Cooldown:SetAllPoints(frame)
-	frame.Cooldown:SetReverse(true)
-	frame.Cooldown:SetHideCountdownNumbers(true)
-	--]]
-
-
-TidyPlatesWidgets.DebuffWidgetBuild = 2
-
 local PlayerGUID = UnitGUID("player")
 local PolledHideIn = TidyPlatesWidgets.PolledHideIn
 local FilterFunction = function() return 1 end
 local AuraMonitor = CreateFrame("Frame", nil, nil)
 local WatcherIsEnabled = false
-local WidgetList, WidgetGUID = {}, {}
+local WidgetList= {}
 
 local UpdateWidget
 
@@ -27,8 +15,15 @@ local useWideIcons = true
 
 local function DummyFunction() end
 
-local function DefaultPreFilterFunction() return true end
-local function DefaultFilterFunction(aura, unit) if aura and aura.duration and (aura.duration < 30) then return true end end
+local function DefaultPreFilterFunction()
+    return true
+end
+
+local function DefaultFilterFunction(aura, unit)
+    if aura and aura.duration and (aura.duration < 30) then
+        return true
+    end
+end
 
 local AuraFilterFunction = DefaultFilterFunction
 local AuraHookFunction
@@ -58,10 +53,6 @@ local function SetFilter(func)
 	if func and type(func) == "function" then
 		FilterFunction = func
 	end
-end
-
-local function GetAuraWidgetByGUID(guid)
-	if guid then return WidgetGUID[guid] end
 end
 
 local function IsAuraShown(widget, aura)
@@ -127,7 +118,6 @@ end
 -----------------------------------------------------
 
 local AuraEvents = {
-	--["UNIT_TARGET"] = EventUnitTarget,
 	["UNIT_AURA"] = EventUnitAura,
 }
 
@@ -154,7 +144,6 @@ local function UpdateWidgetTime(frame, expiration)
 			frame.TimeLeft:SetText(floor(timeleft/60).."m")
 		else
 			frame.TimeLeft:SetText(floor(timeleft))
-			--frame.TimeLeft:SetText(floor(timeleft*10)/10)
 		end
 	end
 end
@@ -205,7 +194,6 @@ function UpdateWidget(frame)
     local storedAuras       = {}
     local storedAuraCount   = 0
     local auraIndex         = 0
-    local moreAuras         = true
     local searchedDebuffs   = false
     local searchedBuffs     = false
     local auraFilter        = "HARMFUL"
@@ -500,7 +488,6 @@ end
 -----------------------------------------------------
 -- External
 -----------------------------------------------------
--- TidyPlatesWidgets.GetAuraWidgetByGUID = GetAuraWidgetByGUID
 TidyPlatesWidgets.IsAuraShown = IsAuraShown
 
 TidyPlatesWidgets.UseSquareDebuffIcon = UseSquareDebuffIcon
