@@ -87,12 +87,12 @@ end
 
 
 local function EventUnitAura(unitid)
-	local frame
-
-	if unitid then frame = WidgetList[unitid] end
-
-	if frame then UpdateWidget(frame) end
-
+    if unitid then
+        local frame = WidgetList[unitid]
+        if frame then
+            UpdateWidget(frame)
+        end
+    end
 end
 
 
