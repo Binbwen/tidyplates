@@ -253,7 +253,7 @@ function UpdateWidget(frame)
         for i = 1, displayedAuraCount do
             local aura = storedAuras[i]
             if aura.spellid and aura.expiration then
-                UpdateIcon(AuraIconFrames[i], aura) --aura.texture, aura.duration, aura.expiration, aura.stacks, aura.r, aura.g, aura.b)
+                UpdateIcon(AuraIconFrames[i], aura)
             end
         end
         frame.currentAuraCount = displayedAuraCount
