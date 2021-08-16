@@ -289,9 +289,7 @@ local function UpdateIconGrid(frame, unitid)
 end
 
 function UpdateWidget(frame)
-		local unitid = frame.unitid
-
-		UpdateIconGrid(frame, unitid)
+	UpdateIconGrid(frame, frame.unitid)
 end
 
 -- Context Update (mouseover, target change)
