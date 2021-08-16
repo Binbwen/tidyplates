@@ -136,16 +136,13 @@ end
 
 
 local function UpdateIcon(frame, aura)
-	if frame and aura.texture and aura.expiration then
+	if frame and aura then
         local duration = aura.duration
-        local expiration = aura.expiration
-
-		if duration == 0 then
-            expiration = 0
-        end
+        local expiration = duration == 0 and 0 or aura.expiration
 
 		frame.Icon:SetTexture(aura.texture)
-        frame.Stacks:SetText(aura.stacks > 0 and aura.stacks or "")
+        frame.Stacks:SetText(aura.stacks > 1 and aura.stacks or "")
+
 		if aura.hasHighlight then
 			frame.BorderHighlight:SetVertexColor(aura.r, aura.g, aura.b)
 			frame.BorderHighlight:Show()
@@ -156,16 +153,13 @@ local function UpdateIcon(frame, aura)
         end
 
 		if duration > 0 and expiration > 0 then
-			SetCooldown(frame.Cooldown, expiration-duration, duration+.25)
+			SetCooldown(frame.Cooldown, expiration - duration, duration + .25)
 		end
 
-		--if expiration 
-		UpdateWidgetTime(frame, expiration)
-		frame:Show()
-		if expiration ~= 0 then PolledHideIn(frame, expiration) end
-
+        UpdateWidgetTime(frame, expiration)
+        frame:Show()
 	elseif frame then
-		PolledHideIn(frame, 0)
+		frame:Hide()
 	end
 end
 
@@ -251,8 +245,8 @@ function UpdateWidget(frame)
     if displayedAuraCount > 0 then
         frame:Show()
         sort(storedAuras, AuraSortFunction)
-        for index = 1, displayedAuraCount do
-            local aura = storedAuras[index]
+        for i = 1, displayedAuraCount do
+            local aura = storedAuras[i]
             if aura.spellid and aura.expiration then
                 UpdateIcon(AuraIconFrames[i], aura) --aura.texture, aura.duration, aura.expiration, aura.stacks, aura.r, aura.g, aura.b)
             end
@@ -261,8 +255,8 @@ function UpdateWidget(frame)
     end
 
     -- Clear Extra Slots
-    for i = displayedAuraCount, DebuffLimit do
-        UpdateIcon(AuraIconFrames[i])
+    for i = displayedAuraCount + 1, DebuffLimit do
+        AuraIconFrames[i]:Hide()
     end
 
 end
