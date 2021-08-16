@@ -135,30 +135,29 @@ local function UpdateWidgetTime(frame, expiration)
 end
 
 
-local function UpdateIcon(frame, texture, duration, expiration, stacks, r, g, b)
-	if frame and texture and expiration then
-		-- Expiration
-		if duration == 0 then expiration = 0 end
+local function UpdateIcon(frame, aura)
+	if frame and aura.texture and aura.expiration then
+        local duration = aura.duration
+        local expiration = aura.expiration
 
-		-- Icon
-		frame.Icon:SetTexture(texture)
+		if duration == 0 then
+            expiration = 0
+        end
 
-		-- Stacks
-		if stacks and stacks > 1 then frame.Stacks:SetText(stacks)
-		else frame.Stacks:SetText("") end
-
-		-- Highlight Coloring
-		if r then
-			frame.BorderHighlight:SetVertexColor(r, g or 1, b or 1)
+		frame.Icon:SetTexture(aura.texture)
+        frame.Stacks:SetText(aura.stacks > 0 and aura.stacks or "")
+		if aura.hasHighlight then
+			frame.BorderHighlight:SetVertexColor(aura.r, aura.g, aura.b)
 			frame.BorderHighlight:Show()
 			frame.Border:Hide()
-		else frame.BorderHighlight:Hide(); frame.Border:Show()	end
+		else
+            frame.BorderHighlight:Hide()
+            frame.Border:Show()
+        end
 
-		-- [[ Cooldown Effect
-		if duration and duration > 0 and expiration and expiration > 0 then
+		if duration > 0 and expiration > 0 then
 			SetCooldown(frame.Cooldown, expiration-duration, duration+.25)
 		end
-		--]]
 
 		--if expiration 
 		UpdateWidgetTime(frame, expiration)
@@ -255,7 +254,7 @@ function UpdateWidget(frame)
         for index = 1, displayedAuraCount do
             local aura = storedAuras[index]
             if aura.spellid and aura.expiration then
-                UpdateIcon(AuraIconFrames[i], aura.texture, aura.duration, aura.expiration, aura.stacks, aura.r, aura.g, aura.b)
+                UpdateIcon(AuraIconFrames[i], aura) --aura.texture, aura.duration, aura.expiration, aura.stacks, aura.r, aura.g, aura.b)
             end
         end
         frame.currentAuraCount = displayedAuraCount
