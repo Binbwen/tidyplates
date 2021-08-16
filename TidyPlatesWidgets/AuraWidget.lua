@@ -216,7 +216,6 @@ end
 
 function AuraIcon:OnUpdate(elapsed)
     if self.NextUpdate <= GetTime() then
-        print(self.Parent.unitid)
         self.NextUpdate = self.NextUpdate + UpdateInterval
         self:UpdateTime()
     end
