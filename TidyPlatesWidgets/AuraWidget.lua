@@ -176,7 +176,8 @@ local function AuraSortFunction(a,b)
 end
 
 
-local function UpdateIconGrid(frame, unitid)
+local function UpdateWidget(frame)
+    local unitid = frame.unitid
 
 		if not unitid then return end
 
@@ -286,10 +287,6 @@ local function UpdateIconGrid(frame, unitid)
 		-- Clear Extra Slots
 		for AuraSlotEmpty = AuraSlotCount, DebuffLimit do UpdateIcon(AuraIconFrames[AuraSlotEmpty]) end
 
-end
-
-function UpdateWidget(frame)
-	UpdateIconGrid(frame, frame.unitid)
 end
 
 -- Context Update (mouseover, target change)
