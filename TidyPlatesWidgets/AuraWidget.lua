@@ -70,6 +70,31 @@ local function IsAuraShown(widget, aura)
 		end
 end
 
+local function CreateAura(unit, index, filter, unitReaction)
+    local name, icon, stacks, auraType, duration, expiration, caster, stealable, showPersonal, spellid, canApply, bossdebuff, castByPlayer, showAll, timeMod = UnitAura(unit, index, filter)
+    return {
+        name = name,
+        texture = icon,
+        stacks = stacks,
+        type = auraType,
+        duration = duration,
+        expiration = expiration,
+        caster = caster,
+        stealable = stealable,
+        showPersonal = showPersonal,
+        spellid = spellid,
+        canApply = canApply,
+        bossdebuff = bossdebuff,
+        castByPlayer = castByPlayer,
+        showAll = showAll,
+        timeMod = timeMod,
+        reaction = unitReaction or (UnitIsFriend("player", unitid)
+                                    and AURA_TARGET_FRIENDLY
+                                    or AURA_TARGET_HOSTILE),
+        effect = filter,
+        unit = unit,
+    }
+end
 
 -----------------------------------------------------
 -- Default Filter
@@ -192,30 +217,7 @@ function UpdateWidget(frame)
 
     repeat
         auraIndex = auraIndex + 1
-        local aura = {}
-
-        do
-            --[[ 8.0
-            name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, 
-                isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, ...
-                            = UnitAura("unit", index[, "filter"])
-            --]]
-
-            local name, icon, stacks, auraType, duration, expiration, caster, stealable, personal, spellid, canApply, bossdebuff = UnitAura(unitid, auraIndex, auraFilter)
-            aura.name = name
-            aura.texture = icon
-            aura.stacks = stacks
-            aura.type = auraType
-            aura.effect = auraFilter
-            aura.duration = duration
-            aura.stealable = stealable
-            aura.bossdebuff = bossdebuff
-            aura.reaction = unitReaction
-            aura.expiration = expiration
-            aura.caster = caster
-            aura.spellid = spellid
-            aura.unit = unitid 		-- unitid of the plate
-        end
+        local aura = CreateAura(unitid, auraIndex, auraFilter, unitReaction)
 
         -- Auras are evaluated by an external function
         -- Pre-filtering before the icon grid is populated
@@ -224,7 +226,10 @@ function UpdateWidget(frame)
             -- Store Order/Priority
             if show then
                 aura.priority = priority or 10
-                aura.r, aura.g, aura.b = r, g, b
+                if aura.r then
+                    aura.hasHighlight = true
+                    aura.r, aura.g, aura.b = r, g, b
+                end
                 storedAuraCount = storedAuraCount + 1
                 storedAuras[storedAuraCount] = aura
             end
