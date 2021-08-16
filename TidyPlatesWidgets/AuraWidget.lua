@@ -199,27 +199,27 @@ function AuraIcon:UpdateAura(aura)
 		if duration > 0 and expiration > 0 then
 			self.Cooldown:SetCooldown(expiration - duration, duration)
             self.NextUpdate = GetTime() + UpdateInterval
-            self.RegisterEvent("OnUpdate", self.OnUpdate)
-		end
+            self:HookScript("OnUpdate", self.OnUpdate)
+        else
+            self:SetScript("OnUpdate", nil)
+        end
 
         self:UpdateTime()
         self:Show()
 
 	else
         self.aura = nil
+        self:SetScript("OnUpdate", nil)
 		self:Hide()
 	end
 end
 
 function AuraIcon:OnUpdate(elapsed)
     if self.NextUpdate <= GetTime() then
+        print(self.Parent.unitid)
         self.NextUpdate = self.NextUpdate + UpdateInterval
         self:UpdateTime()
     end
-end
-
-function AuraIcon:OnHide()
-    self:UnregisterEvent("OnUpdate")
 end
 
 --* ---------------------------------------------------------------
@@ -234,7 +234,7 @@ function AuraWidget.Create(parent)
 	-- Create Base frame
 	local frame = CreateFrame("Frame", nil, parent)
     Mixin(frame, AuraWidget)
-    frame:RegisterEvent("OnHide", frame.OnHide)
+    frame:HookScript("OnHide", frame.OnHide)
 
 	frame:SetWidth(128); frame:SetHeight(32); frame:Show()
 	--frame.PollFunction = UpdateWidgetTime
@@ -431,13 +431,13 @@ function TidyPlatesWidgets.IsAuraShown(widget, aura)
     end
 end
 
-function TidyPlatesWidgets.Enable()
+function TidyPlatesWidgets.EnableAuraWatcher()
 	AuraMonitor:SetScript("OnEvent", AuraEventHandler)
 
 	for event in pairs(AuraEvents) do AuraMonitor:RegisterEvent(event) end
 end
 
-function TidyPlatesWidgets.Disable()
+function TidyPlatesWidgets.DisableAuraWatcher()
 	AuraMonitor:SetScript("OnEvent", nil)
 	AuraMonitor:UnregisterAllEvents()
 
