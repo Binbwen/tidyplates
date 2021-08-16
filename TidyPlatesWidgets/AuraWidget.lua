@@ -83,6 +83,7 @@ function AuraIcon.Create(parent)
 	frame.Border = frame:CreateTexture(nil, "ARTWORK")
 	frame.BorderHighlight = frame:CreateTexture(nil, "ARTWORK")
 	frame.Cooldown = CreateFrame("Cooldown", nil, frame, "TidyPlatesAuraWidgetCooldown")
+    frame.Cooldown.SetCooldown = CooldownNative.SetCooldown
 
 	frame.Cooldown:SetAllPoints(frame)
 	frame.Cooldown:SetReverse(true)
@@ -196,7 +197,8 @@ function AuraIcon:UpdateAura(aura)
         end
 
 		if duration > 0 and expiration > 0 then
-			SetCooldown(self.Cooldown, expiration - duration, duration)
+			self.Cooldown:SetCooldown(expiration - duration, duration)
+
 		end
 
         self:UpdateTime()
@@ -208,6 +210,9 @@ function AuraIcon:UpdateAura(aura)
 	end
 end
 
+function AuraIcon:OnHide()
+
+end
 
 --* ---------------------------------------------------------------
 --* AuraWidget
