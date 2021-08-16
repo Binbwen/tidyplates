@@ -1,10 +1,11 @@
-local PlayerGUID = UnitGUID("player")
-local PolledHideIn = TidyPlatesWidgets.PolledHideIn
+local _
+
 local WidgetList = {}
 
 local DebuffColumns = 3
 local DebuffLimit = 6
 local useWideIcons = true
+local UpdateInterval = 0.2
 
 local function AuraFilterFunction(aura, unit)
     if aura and aura.duration and (aura.duration < 30) then
@@ -20,7 +21,6 @@ local AURA_TARGET_FRIENDLY = 2
 local CooldownNative = CreateFrame("Cooldown", nil, WorldFrame)
 local SetCooldown = CooldownNative.SetCooldown
 
-local _
 
 
 
@@ -198,7 +198,8 @@ function AuraIcon:UpdateAura(aura)
 
 		if duration > 0 and expiration > 0 then
 			self.Cooldown:SetCooldown(expiration - duration, duration)
-
+            self.NextUpdate = GetTime() + UpdateInterval
+            self.RegisterEvent("OnUpdate", self.OnUpdate)
 		end
 
         self:UpdateTime()
@@ -210,8 +211,15 @@ function AuraIcon:UpdateAura(aura)
 	end
 end
 
-function AuraIcon:OnHide()
+function AuraIcon:OnUpdate(elapsed)
+    if self.NextUpdate <= GetTime() then
+        self.NextUpdate = self.NextUpdate + UpdateInterval
+        self:UpdateTime()
+    end
+end
 
+function AuraIcon:OnHide()
+    self:UnregisterEvent("OnUpdate")
 end
 
 --* ---------------------------------------------------------------
