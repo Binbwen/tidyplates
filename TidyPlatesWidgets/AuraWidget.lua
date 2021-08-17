@@ -313,6 +313,8 @@ function AuraWidget:Update()
             local aura = storedAuras[i]
             if aura.spellid and aura.expiration then
                 AuraIconFrames[i]:UpdateAura(aura)
+            else
+                AuraIconFrames[i]:UpdateAura()
             end
         end
         self.currentAuraCount = displayedAuraCount
