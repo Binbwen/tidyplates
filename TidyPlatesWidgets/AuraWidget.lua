@@ -320,7 +320,7 @@ function AuraWidget:Update()
 
     -- Clear Extra Slots
     for i = displayedAuraCount + 1, DebuffLimit do
-        AuraIconFrames[i]:Hide()
+        AuraIconFrames[i]:UpdateAura()
     end
 
 end
