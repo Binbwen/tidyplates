@@ -93,7 +93,6 @@ function AuraIcon.Create(parent)
 	-- Text
 	frame.TimeLeft = frame.Cooldown:CreateFontString(nil, "OVERLAY")
 	frame.Stacks = frame.Cooldown:CreateFontString(nil, "OVERLAY")
-	frame.Poll = frame.UpdateTime
 	frame:Hide()
 
 	return frame
