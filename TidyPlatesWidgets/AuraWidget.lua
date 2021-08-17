@@ -285,7 +285,7 @@ function AuraWidget:Update()
             -- Store Order/Priority
             if show then
                 aura.priority = priority or 10
-                if aura.r then
+                if r then
                     aura.hasHighlight = true
                     aura.r, aura.g, aura.b = r, g, b
                 end
