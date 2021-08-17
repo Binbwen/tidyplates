@@ -198,7 +198,7 @@ function AuraIcon:UpdateAura(aura)
 		if duration > 0 and expiration > 0 then
 			self.Cooldown:SetCooldown(expiration - duration, duration)
             self.NextUpdate = GetTime() + UpdateInterval
-            self:HookScript("OnUpdate", self.OnUpdate)
+            self:SetScript("OnUpdate", self.OnUpdate)
         else
             self:SetScript("OnUpdate", nil)
         end
