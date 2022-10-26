@@ -112,7 +112,7 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 		EditBox:SetMultiLine(true)
 
 		EditBox:SetFrameLevel(frame:GetFrameLevel()-1)
-		EditBox:SetFont("Fonts\\FRIZQT__.TTF", 11, "NONE")
+		EditBox:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
 		EditBox:SetText("Empty")
 		EditBox:SetAutoFocus(false)
 		EditBox:SetTextInsets(9, 6, 2, 2)
