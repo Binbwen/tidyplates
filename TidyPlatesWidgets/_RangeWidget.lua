@@ -11,7 +11,7 @@
 local GetGroupInfo = TidyPlatesUtility.GetGroupInfo
 local RangesCache = {}
 local Ranges = {}
-local RangeWatcher = CreateFrame("Frame")
+local RangeWatcher = CreateFrame("Frame", nil, nil)
 local nextRangeCheckup = 0
 local currentTime = 0
 local updateFreq = .5

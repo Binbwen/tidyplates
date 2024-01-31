@@ -20,7 +20,7 @@ local GetNamePlateForUnit = C_NamePlate.GetNamePlateForUnit
 -- Internal Data
 local Plates, PlatesVisible, PlatesFading, GUID = {}, {}, {}, {}	            	-- Plate Lists
 local PlatesByUnit = {}
-local nameplate, extended, bars, regions, visual, carrier, plateid			    	-- Temp/Local References
+local nameplate, extended, bars, regions, visual, carrier, plateid, threatborder	-- Temp/Local References
 local unit, unitcache, style, stylename, unitchanged				    			-- Temp/Local References
 local numChildren = -1                                                              -- Cache the current number of plates
 local activetheme = {}                                                              -- Table Placeholder
@@ -144,7 +144,7 @@ do
 				plate.UpdateMe = false
 				plate.UpdateHealth = false
 
-				plate:GetChildren():Hide()
+				plate.UnitFrame:Hide()
 
 			end
 
@@ -414,7 +414,7 @@ do
 		-- plate:GetChildren():Hide()
 
 		-- Gather Information
-		unitid = PlatesVisible[plate]
+		local unitid = PlatesVisible[plate]
 		UpdateReferences(plate)
 
 		UpdateUnitIdentity(unitid)
@@ -425,7 +425,7 @@ do
 
 	-- OnHealthUpdate
 	function OnHealthUpdate(plate)
-		unitid = PlatesVisible[plate]
+		local unitid = PlatesVisible[plate]
 
 		UpdateUnitCondition(plate, unitid)
 		ProcessUnitChanges()
@@ -438,7 +438,7 @@ do
 		plate.UpdateMe = true
 		extended.unitcache = ClearIndices(extended.unitcache)
 		extended.stylename = ""
-		unitid = PlatesVisible[plate]
+		local unitid = PlatesVisible[plate]
 
 		OnShowNameplate(plate, unitid)
 	end
@@ -568,6 +568,7 @@ do
 
 		unit.health = UnitHealth(unitid) or 0
 		unit.healthmax = UnitHealthMax(unitid) or 1
+		unit.absorb = UnitGetTotalAbsorbs(unitid)
 
 		unit.threatValue = UnitThreatSituation("player", unitid) or 0
 		unit.threatSituation = ThreatReference[unit.threatValue]
@@ -620,8 +621,9 @@ do
 
 	-- UpdateIndicator_HealthBar: Updates the value on the health bar
 	function UpdateIndicator_HealthBar()
-		visual.healthbar:SetMinMaxValues(0, unit.healthmax)
-		visual.healthbar:SetValue(unit.health)
+		local healthRange = max(unit.healthmax, unit.health + unit.absorb)
+        visual.healthbar:SetMinMaxValues(0, healthRange)
+		visual.healthbar:SetValue(unit.health, unit.absorb)
 	end
 
 
@@ -644,10 +646,24 @@ do
 
 	-- UpdateIndicator_Level:
 	function UpdateIndicator_Level()
-		if unit.isBoss and style.skullicon.show then visual.level:Hide(); visual.skullicon:Show() else visual.skullicon:Hide() end
+        if not style.level.show then
+            visual.level:Hide()
+            visual.skullicon:Hide()
+            return
+        end
 
-		if unit.level < 0 then visual.level:SetText("")
-		else visual.level:SetText(unit.level) end
+		if unit.isBoss and style.skullicon.show then
+            visual.level:Hide()
+            visual.skullicon:Show()
+        else
+            visual.skullicon:Hide()
+        end
+
+		if unit.level < 0 then
+            visual.level:SetText("")
+		else
+            visual.level:SetText(unit.level)
+        end
 		visual.level:SetTextColor(unit.levelcolorRed, unit.levelcolorGreen, unit.levelcolorBlue)
 	end
 
@@ -680,9 +696,13 @@ do
 	function UpdateIndicator_RaidIcon()
 		if unit.isMarked and style.raidicon.show then
 			visual.raidicon:Show()
-			local iconCoord = RaidIconCoordinate[unit.raidIcon]
-			visual.raidicon:SetTexCoord(iconCoord.x, iconCoord.x + 0.25, iconCoord.y,  iconCoord.y + 0.25)
-		else visual.raidicon:Hide() end
+            local iconCoord = RaidIconCoordinate[unit.raidIcon]
+            if iconCoord then
+                visual.raidicon:SetTexCoord(iconCoord.x, iconCoord.x + 0.25, iconCoord.y,  iconCoord.y + 0.25)
+            end
+        else
+            visual.raidicon:Hide()
+        end
 	end
 
 
@@ -699,7 +719,9 @@ do
 		if activetheme.SetHealthbarColor then
 			visual.healthbar:SetAllColors(activetheme.SetHealthbarColor(unit))
 
-		else visual.healthbar:SetStatusBarColor(unit.red, unit.green, unit.blue) end
+		else 
+			visual.healthbar:SetStatusBarColor(unit.red, unit.green, unit.blue) 
+		end
 
 		-- Name Color
 		if activetheme.SetNameColor then
@@ -798,21 +820,22 @@ do
 	-- OnShowCastbar
 	function OnStartCasting(plate, unitid, channeled)
 		UpdateReferences(plate)
-		--if not extended:IsShown() then return end
 		if not extended:IsShown() then return end
 
 		local castBar = extended.visual.castbar
 
-		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
+		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID
 
 		if channeled then
-			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unitid)
-			--name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible = UnitChannelInfo("unit")
-
+			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarReverse)
 		else
-			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unitid)
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unitid)
 			castBar:SetScript("OnUpdate", OnUpdateCastBarForward)
+		end
+
+		if not name then
+			return
 		end
 
 		if isTradeSkill then return end
@@ -829,23 +852,26 @@ do
 		local r, g, b, a = 1, 1, 0, 1
 
 		if activetheme.SetCastbarColor then
-			r, g, b, a = activetheme.SetCastbarColor(unit)
+			r, g, b, a = activetheme.SetCastbarColor(unit, spellID, name)
 			if not (r and g and b and a) then return end
 		end
 
-		castBar:SetStatusBarColor( r, g, b)
+		castBar:SetStatusBarColor(r, g, b)
 
 		castBar:SetAlpha(a or 1)
 
 		if unit.spellIsShielded then
-			   visual.castnostop:Show(); visual.castborder:Hide()
-		else visual.castnostop:Hide(); visual.castborder:Show() end
+            visual.castnostop:Show()
+            visual.castborder:Hide()
+        else
+            visual.castnostop:Hide()
+            visual.castborder:Show()
+        end
 
 		UpdateIndicator_CustomScaleText()
 		UpdateIndicator_CustomAlpha()
 
 		castBar:Show()
-
 	end
 
 
@@ -873,10 +899,10 @@ do
 		local currentTime = GetTime() * 1000
 
 		-- Check to see if there's a spell being cast
-		if UnitCastingInfo(unitid) then OnStartCasting(plate, unitid, false)
-		else
-		-- See if one is being channeled...
-			if UnitChannelInfo(unitid) then OnStartCasting(plate, unitid, true) end
+        if UnitCastingInfo(unitid) then
+            OnStartCasting(plate, unitid, false)
+		elseif UnitChannelInfo(unitid) then	-- See if one is being channeled...
+            OnStartCasting(plate, unitid, true)
 		end
 	end
 
@@ -935,43 +961,61 @@ do
 	end
 
 	function CoreEvents:NAME_PLATE_CREATED(...)
-		local plate = ...
-		local BlizzardFrame = plate:GetChildren()
-
-		-- hooksecurefunc([table,] "function", hookfunc)
-
-		--BlizzardFrame._Show = BlizzardFrame.Show	-- Store this for later
-		--BlizzardFrame.Show = BlizzardFrame.Hide			-- Try this to keep the plate from showing up
-		-- --BlizzardFrame.Show = BypassFunction			-- Try this to keep the plate from showing up
+        local plate = ...
 		OnNewNameplate(plate)
-	 end
+    end
+
+    hooksecurefunc(NamePlateDriverFrame, "AcquireUnitFrame", function(plate)
+        if not plate.isModified then
+            plate.isModified = true
+            hooksecurefunc(plate.UnitFrame, "Show", function(self)
+                if not UnitIsUnit(self.unit, "player") and
+                   not UnitNameplateShowsWidgetsOnly(self.unit) and
+                   not self:IsForbidden() then
+                    self:Hide()
+                end
+            end)
+        end
+    end)
 
 	function CoreEvents:NAME_PLATE_UNIT_ADDED(...)
 		local unitid = ...
-		local plate = GetNamePlateForUnit(unitid);
-
+        local plate = GetNamePlateForUnit(unitid)
 		-- We're not going to theme the personal unit bar
-		if plate and not UnitIsUnit("player", unitid) then
-			local childFrame = plate:GetChildren()
-			if childFrame then childFrame:Hide() end
+		if plate and
+           not plate:IsForbidden() and
+           not UnitIsUnit("player", unitid) and
+           not UnitNameplateShowsWidgetsOnly(unitid) then
+            if plate.UnitFrame then
+                plate.UnitFrame:Hide()
+            end
 			OnShowNameplate(plate, unitid)
-		end
+        end
 
 	end
 
 	function CoreEvents:NAME_PLATE_UNIT_REMOVED(...)
 		local unitid = ...
-		local plate = GetNamePlateForUnit(unitid);
+		local plate = GetNamePlateForUnit(unitid)
 
 		OnHideNameplate(plate, unitid)
 	end
+
 
 	function CoreEvents:PLAYER_TARGET_CHANGED()
 		HasTarget = UnitExists("target") == true;
 		SetUpdateAll()
 	end
 
-	function CoreEvents:UNIT_HEALTH_FREQUENT(...)
+	function CoreEvents:UNIT_HEALTH(...)
+		local unitid = ...
+		local plate = PlatesByUnit[unitid]
+
+		if plate then OnHealthUpdate(plate) end
+	end
+
+
+	function CoreEvents:UNIT_ABSORB_AMOUNT_CHANGED(...)
 		local unitid = ...
 		local plate = PlatesByUnit[unitid]
 
@@ -1002,12 +1046,15 @@ do
 		local plate = GetNamePlateForUnit(unitid)
 
 		if plate then
-			OnStartCasting(plate, unitid, false)
+            OnStartCasting(plate, unitid, false)
+            -- unit targets sometimes change after this call
+            C_Timer.After(0.1, function()
+                OnStartCasting(plate, unitid, false)
+            end)
 		end
 	end
 
-
-	 function CoreEvents:UNIT_SPELLCAST_STOP(...)
+	function CoreEvents:UNIT_SPELLCAST_STOP(...)
 		local unitid = ...
 		if UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
@@ -1015,8 +1062,8 @@ do
 
 		if plate then
 			OnStopCasting(plate)
-		end
-	 end
+	    end
+	end
 
 	function CoreEvents:UNIT_SPELLCAST_CHANNEL_START(...)
 		local unitid = ...
@@ -1026,6 +1073,10 @@ do
 
 		if plate then
 			OnStartCasting(plate, unitid, true)
+            -- unit targets sometimes change after this call
+            C_Timer.After(0.1, function()
+                OnStartCasting(plate, unitid, true)
+            end)
 		end
 	end
 
@@ -1053,6 +1104,9 @@ do
 	CoreEvents.PLAYER_FOCUS_CHANGED = WorldConditionChanged
 	CoreEvents.PLAYER_CONTROL_LOST = WorldConditionChanged
 	CoreEvents.PLAYER_CONTROL_GAINED = WorldConditionChanged
+
+	CoreEvents.UNIT_ENTERED_VEHICLE = WorldConditionChanged
+	CoreEvents.UNIT_EXITED_VEHICLE = WorldConditionChanged
 
 	-- Registration of Blizzard Events
 	TidyPlatesCore:SetFrameStrata("TOOLTIP") 	-- When parented to WorldFrame, causes OnUpdate handler to run close to last

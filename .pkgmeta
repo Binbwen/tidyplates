@@ -1,0 +1,13 @@
+package-as: TidyPlates
+
+ignore:
+  - README.md
+
+move-folders:
+  TidyPlates/TidyPlates: TidyPlates
+  TidyPlates/TidyPlates_Graphite: TidyPlates_Graphite
+  TidyPlates/TidyPlates_Grey: TidyPlates_Grey
+  TidyPlates/TidyPlates_Neon: TidyPlates_Neon
+  TidyPlates/TidyPlates_Quatre: TidyPlates_Quatre
+  TidyPlates/TidyPlatesHub: TidyPlatesHub
+  TidyPlates/TidyPlatesWidgets: TidyPlatesWidgets

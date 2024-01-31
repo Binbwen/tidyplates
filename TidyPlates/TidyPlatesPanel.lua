@@ -10,7 +10,7 @@ local SetTheme = TidyPlatesInternal.SetTheme	-- Use the protected version
 local version = GetAddOnMetadata("TidyPlates", "version")
 local versionString = "|cFF666666"..version
 
-local TidyPlatesInterfacePanel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfacePanel", "Tidy Plates", nil )
+local TidyPlatesInterfacePanel = PanelHelpers:CreatePanelFrame("TidyPlatesInterfacePanel", "Tidy Plates", nil)
 InterfaceOptions_AddCategory(TidyPlatesInterfacePanel);
 
 local CallIn = TidyPlatesUtility.CallIn

@@ -236,7 +236,7 @@ local HealerSpells = {
         -- Druid
         ---------
 		[18562] = "DRUID", -- Swiftmend
-        [17116] = "DRUID", -- Nature's Swiftness
+        [132158] = "DRUID", -- Nature's Swiftness
         [48438] = "DRUID", -- Wild Growth
         [33891] = "DRUID", -- Tree of Life
 
@@ -328,7 +328,7 @@ local function CombatEventHandler(frame, event, ...)
 	if handler then handler(...) end
 end
 
-local HealerTrackWatcher = CreateFrame("Frame")
+local HealerTrackWatcher = CreateFrame("Frame", nil, nil)
 
 local function Enable()
 	--print("TidyPlatesWidgets.HealerTrack:Enable")
