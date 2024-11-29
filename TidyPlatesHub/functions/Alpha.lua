@@ -10,10 +10,9 @@ local InCombatLockdown = InCombatLockdown
 local GetFriendlyThreat = TidyPlatesUtility.GetFriendlyThreat
 local IsOffTanked = TidyPlatesHubFunctions.IsOffTanked
 local IsTankingAuraActive = TidyPlatesWidgets.IsPlayerTank
-local IsHealer = function() return false end
-local IsAuraShown = function() return false end
+local IsHealer = TidyPlatesUtility.IsHealer
 local UnitFilter = TidyPlatesHubFunctions.UnitFilter
-local function DummyFunction() end
+local function DummyFunction(...) end
 
 ------------------------------------------------------------------------------
 -- Opacity / Alpha
@@ -65,12 +64,6 @@ end
 
 local function AlphaFunctionByDamaged(unit)
 	if (unit.health < unit.healthmax) or unit.isMarked then return LocalVars.OpacitySpotlight end
-end
-
-local function AlphaFunctionByActiveAuras(unit)
-	local widget = unit.frame.widgets.DebuffWidget
-	--local widget = TidyPlatesWidgets.GetAuraWidgetByGUID(unit.guid)
-	if IsAuraShown(widget) then return LocalVars.OpacitySpotlight end
 end
 
 -- By Enemy Healer
@@ -129,10 +122,6 @@ AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, 
 AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionByPlayers, "On Players", "OnPlayers")
 AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionByDamaged, "On Damaged Units", "OnActiveUnits")
 
-
-
--- Alpha Functions Listed by Role order: Damage, Tank, Heal
-local AlphaFunctions = {AlphaFunctionsDamage, AlphaFunctionsTank}
 
 local function Diminish(num)
 	if num == 1 then return 1

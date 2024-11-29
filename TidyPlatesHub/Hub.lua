@@ -86,6 +86,8 @@ local function BuildHubPanel(panel)
 
 	panel.StyleHeadlineLabel, F = CreateQuickItemLabel(nil, "Headline View (Text-Only):", AlignmentColumn, F, 0, 2)
 	panel.StyleHeadlineNeutral, F = CreateQuickCheckbutton(objectName.."StyleHeadlineNeutral", "Force Headline on Neutral Units", AlignmentColumn, F, 16, 2)
+    panel.StyleHeadlineNeutralCombatOverride, F = CreateQuickCheckbutton(objectName.."StyleHeadlineNeutralCombatOverride", "Ignore while in combat", AlignmentColumn, F, 40, 0)
+    panel.StyleHeadlineNeutralCombatOverride:SetScale(.8)
 	panel.StyleHeadlineOutOfCombat, F = CreateQuickCheckbutton(objectName.."StyleHeadlineOutOfCombat", "Force Headline while Out-of-Combat", AlignmentColumn, F, 16, 0)
 	panel.StyleHeadlineMiniMobs, F = CreateQuickCheckbutton(objectName.."StyleHeadlineMiniMobs", "Force Headline on Mini-Mobs", AlignmentColumn, F, 16, 0)
 
@@ -279,10 +281,12 @@ local function BuildHubPanel(panel)
 	panel.OpacityFilterEnemyNPC, F = CreateQuickCheckbutton(objectName.."OpacityFilterEnemyNPC", "Filter Enemy NPC", AlignmentColumn, F, 8)
 	panel.OpacityFilterFriendlyNPC, F = CreateQuickCheckbutton(objectName.."OpacityFilterFriendlyNPC", "Filter Friendly NPC", AlignmentColumn, F, 8)
 	panel.OpacityFilterUntitledFriendlyNPC, F = CreateQuickCheckbutton(objectName.."OpacityFilterUntitledFriendlyNPC", "Filter Non-Titled Friendly NPC", AlignmentColumn, F, 8)
+	--panel.OpacityFilterExcludeQuestMobs, F = CreateQuickCheckbutton(objectName.."OpacityFilterExcludeQuestMobs", "Bypass Filter for Quest Mobs", AlignmentColumn, F, 8)
 
     panel.OpacityFilterPlayers = CreateQuickCheckbutton(objectName.."OpacityFilterPlayers", "Filter Players", AlignmentColumn, panel.FilterScaleLock, OffsetColumnB, 4)
 	panel.OpacityFilterInactive = CreateQuickCheckbutton(objectName.."OpacityFilterInactive", "Filter Inactive", AlignmentColumn, panel.OpacityFilterPlayers, OffsetColumnB)
 	panel.OpacityFilterMini = CreateQuickCheckbutton(objectName.."OpacityFilterMini", "Filter Mini-Mobs", AlignmentColumn, panel.OpacityFilterInactive, OffsetColumnB)
+	
 
 	panel.OpacityCustomFilterLabel = CreateQuickItemLabel(nil, "Filter By Unit Name:", AlignmentColumn, F, 8, 4)
 	panel.OpacityFilterList, L = CreateQuickEditbox(objectName.."OpacityFilterList", AlignmentColumn, panel.OpacityCustomFilterLabel, 8)
@@ -336,11 +340,14 @@ local function BuildHubPanel(panel)
 	-- Warning Border Glow
 	--]]
 
+	--
+
     -- Column 2
 	panel.EnableOffTankHighlight = CreateQuickCheckbutton(objectName.."EnableOffTankHighlight", "Highlight Mobs on Off-Tanks", AlignmentColumn, panel.ThreatLabel, OffsetColumnB)
-	panel.ColorAttackingOtherTank = CreateQuickColorbox(objectName.."ColorAttackingOtherTank", "Attacking another Tank", AlignmentColumn, panel.EnableOffTankHighlight , 16+OffsetColumnB)
+	panel.ColorAttackingOtherTank = CreateQuickColorbox(objectName.."ColorAttackingOtherTank", "Attacking another Tank", AlignmentColumn, panel.EnableOffTankHighlight , 14+OffsetColumnB)
+	panel.CountPetAsOtherTank = CreateQuickCheckbutton(objectName.."CountPetAsOtherTank", "Count pets as Off-Tanks", AlignmentColumn, panel.ColorAttackingOtherTank, 16+OffsetColumnB)
 
-	panel.ColorShowPartyAggro = CreateQuickCheckbutton(objectName.."ColorShowPartyAggro", "Highlight Group Members holding Aggro", AlignmentColumn, panel.ColorAttackingOtherTank, OffsetColumnB)
+	panel.ColorShowPartyAggro = CreateQuickCheckbutton(objectName.."ColorShowPartyAggro", "Highlight Group Members holding Aggro", AlignmentColumn, panel.CountPetAsOtherTank, OffsetColumnB)
 	panel.ColorPartyAggro = CreateQuickColorbox(objectName.."ColorPartyAggro", "Group Member Aggro", AlignmentColumn, panel.ColorShowPartyAggro , 14+OffsetColumnB)
 	panel.ColorPartyAggroBar = CreateQuickCheckbutton(objectName.."ColorPartyAggroBar", "Health Bar Color", AlignmentColumn, panel.ColorPartyAggro, 16+OffsetColumnB)
 	panel.ColorPartyAggroGlow = CreateQuickCheckbutton(objectName.."ColorPartyAggroGlow", "Border/Warning Glow", AlignmentColumn, panel.ColorPartyAggroBar, 16+OffsetColumnB)
@@ -369,6 +376,19 @@ local function BuildHubPanel(panel)
 	panel.ColorNormalSpellCast, F = CreateQuickColorbox(objectName.."ColorNormalSpellCast", "Normal", AlignmentColumn, F , 16)
 	panel.ColorUnIntpellCast, F = CreateQuickColorbox(objectName.."ColorUnIntpellCast", "Un-interruptible", AlignmentColumn, F , 16)
 
+	panel.SpellsCastAtPlayerLabel, F = CreateQuickItemLabel(nil, "Spells that target you:", AlignmentColumn, F, 0, 2)
+    panel.SpellsCastAtPlayerEnable, F = CreateQuickCheckbutton(objectName.."SpellsCastAtPlayerEnable", "Color spells cast at player", AlignmentColumn, F)
+	panel.ColorNormalSpellsCastAtPlayer, F = CreateQuickColorbox(objectName.."ColorNormalSpellsCastAtPlayer", "Normal", AlignmentColumn, F , 16)
+	panel.ColorUnIntSpellsCastAtPlayer, F = CreateQuickColorbox(objectName.."ColorUnIntSpellsCastAtPlayer", "Un-interruptible", AlignmentColumn, F , 16)
+	panel.SpellCastAtPlayerListLabel, F = CreateQuickItemLabel(nil, "Spells that will be checked:", AlignmentColumn, F, 0, 2)
+	panel.SpellCastAtPlayerList, F = CreateQuickEditbox(objectName.."SpellCastAtPlayerList", AlignmentColumn, F, 8)
+	panel.SpellCastAtPlayerList:SetWidth(250)
+
+	panel.SpellCastAtPlayerTip, F = CreateQuickItemLabel(nil, "Tip:|cffCCCCCC Not all spells are actually cast at the current target of a mob. TidyPlates only recolors spells listed here in order to make sure only spells where you know they get cast at the current target get recolored.\nSpells need to be listed with their exact spell ID or name. Each line needs to contain exactly one spell ID or name. Lines starting with # will be ignored. For example this would add Ice Lance (spell ID 30455), Frostbolt, but not Shadowbolt:\n\n30455\nFrostbolt\n# Shadowbolt", AlignmentColumn, panel.SpellsCastAtPlayerLabel, 300)
+	panel.SpellCastAtPlayerTip:SetHeight(300)
+	panel.SpellCastAtPlayerTip:SetWidth(200)
+	panel.SpellCastAtPlayerTip.Text:SetJustifyV("TOP")
+
 	--[[
 	------------------------------
 	-- Text
@@ -392,7 +412,7 @@ local function BuildHubPanel(panel)
 	------------------------------
 	--Widgets
 	------------------------------
-	panel.WidgetsLabel, F = CreateQuickHeadingLabel(nil, "Other Widgets", AlignmentColumn, F, 0, 5)
+	panel.WidgetsLabel, F = CreateQuickHeadingLabel(nil, "Other Widgets", AlignmentColumn, panel.SpellCastAtPlayerList, 0, 5)
 	panel.WidgetTargetHighlight = CreateQuickCheckbutton(objectName.."WidgetTargetHighlight", "Show Target Highlight", AlignmentColumn, panel.WidgetsLabel)
 	panel.WidgetEliteIndicator = CreateQuickCheckbutton(objectName.."WidgetEliteIndicator", "Show Elite Icon", AlignmentColumn, panel.WidgetTargetHighlight)
 	panel.ClassEnemyIcon = CreateQuickCheckbutton(objectName.."ClassEnemyIcon", "Show Enemy Class Art", AlignmentColumn, panel.WidgetEliteIndicator)
@@ -434,13 +454,6 @@ local function BuildHubPanel(panel)
 			print("Tidy Plates Hub: Cleared", count, "entries from cache.")
 		end)
 
-	local BlizzOptionsButton = CreateFrame("Button", objectName.."BlizzButton", AlignmentColumn, "TidyPlatesPanelButtonTemplate")
-	BlizzOptionsButton:SetPoint("TOPLEFT", ClearCacheButton, "BOTTOMLEFT", 0, -16)
-	--BlizzOptionsButton:SetPoint("TOPLEFT", panel.AdvancedCustomCodeTextbox, "BOTTOMLEFT",-6, -18)
-	BlizzOptionsButton:SetWidth(300)
-	BlizzOptionsButton:SetText("Blizzard Nameplate Motion & Visibility...")
-	BlizzOptionsButton:SetScript("OnClick", function() InterfaceOptionsFrame_OpenToCategory(_G["InterfaceOptionsNamesPanel"]) end)
-
 
 	------------------------------
 	-- Set Sizes and Mechanics
@@ -478,7 +491,11 @@ local function BuildHubPanel(panel)
 		ConvertDebuffListTable(LocalVars.WidgetsDebuffTrackList, LocalVars.WidgetsDebuffLookup, LocalVars.WidgetsDebuffPriority)
 		-- Convert Unit Filter Strings
 		ConvertStringToTable(LocalVars.OpacityFilterList, LocalVars.OpacityFilterLookup)
-		ConvertStringToTable(LocalVars.UnitSpotlightList, LocalVars.UnitSpotlightLookup)
+        ConvertStringToTable(LocalVars.UnitSpotlightList, LocalVars.UnitSpotlightLookup)
+        if not LocalVars.SpellCastAtPlayerLookup then
+            LocalVars.SpellCastAtPlayerLookup = {}
+        end
+		ConvertStringToTable(LocalVars.SpellCastAtPlayerList, LocalVars.SpellCastAtPlayerLookup)
 	end
 
 	--panel:Hide()
@@ -486,30 +503,16 @@ end
 
 
 -- Create Instances of Panels
-local TankPanel = CreateHubInterfacePanel( "HubPanelSettingsTank", "|cFF3782D1Tank Profile", "Tidy Plates" )
-TidyPlatesPanel:AddProfile("Tank")
-BuildHubPanel(TankPanel)
-function ShowTidyPlatesHubTankPanel() TidyPlatesUtility.OpenInterfacePanel(TankPanel) end
+local function CreateProfilePanel(profile, color)
+    local panel = CreateHubInterfacePanel("HubPanelSettings" .. profile, color .. profile .. "Profile", "Tidy Plates")
+    TidyPlatesPanel:AddProfile(profile)
+    BuildHubPanel(panel)
+end
 
-
-local DamagePanel = CreateHubInterfacePanel( "HubPanelSettingsDamage", "|cFFFF1100Damage Profile", "Tidy Plates" )
-TidyPlatesPanel:AddProfile("Damage")
-BuildHubPanel(DamagePanel)
-function ShowTidyPlatesHubDamagePanel() TidyPlatesUtility.OpenInterfacePanel(DamagePanel) end
-
-
-
-local HealerPanel = CreateHubInterfacePanel( "HubPanelSettingsHealer", "|cFF44DD55Healer Profile", "Tidy Plates"  )
-TidyPlatesPanel:AddProfile("Healer")
-BuildHubPanel(HealerPanel)
-function ShowTidyPlatesHubHealerPanel() TidyPlatesUtility.OpenInterfacePanel(HealerPanel) end
-
-
-local GladiatorPanel = CreateHubInterfacePanel( "HubPanelSettingsGladiator", "|cFFAA6600Gladiator Profile", "Tidy Plates"  )
-TidyPlatesPanel:AddProfile("Gladiator")
-BuildHubPanel(GladiatorPanel)
-function ShowTidyPlatesHubGladiatorPanel() TidyPlatesUtility.OpenInterfacePanel(GladiatorPanel) end
-
+CreateProfilePanel("Tank", "|cFF3782D1")
+CreateProfilePanel("Damage", "|cFFFF1100")
+CreateProfilePanel("Healer", "|cFF44DD55")
+CreateProfilePanel("Gladiator", "|cFFAA6600")
 
 
 ---------------------------------------------
@@ -518,59 +521,12 @@ function ShowTidyPlatesHubGladiatorPanel() TidyPlatesUtility.OpenInterfacePanel(
 
 function ShowTidyPlatesHubPanel()
 	local profile = TidyPlates.GetProfile()
-
-	if profile == "Tank" then
-		ShowTidyPlatesHubTankPanel()
-	elseif profile == "Healer" then
-		ShowTidyPlatesHubHealerPanel()
-	elseif profile == "Gladiator" then
-		ShowTidyPlatesHubGladiatorPanel()
-	else
-		ShowTidyPlatesHubDamagePanel()
-	end
-
-end
-
-local function SlashCommandHub()
-	--local profile = GetProfile()
-	ShowTidyPlatesHubPanel()
+    Settings.OpenToCategory("HubPanelSettings"..(profile == "None" and "Damage" or profile))
 end
 
 
 SLASH_HUB1 = '/hub'
-SlashCmdList['HUB'] = SlashCommandHub
-
-
---[[
-	local ColorPanel = CreateInterfacePanel( "HubPanelSettingsColors", "Tidy Plates Hub: Colors", nil )
-	ColorPanel.RefreshSettings = function() end
-	InterfaceOptions_AddCategory(ColorPanel)
---]]
---end
-
---local HubHandler = CreateFrame("Frame")
---HubHandler:SetScript("OnEvent", OnLogin)
---HubHandler:RegisterEvent("PLAYER_LOGIN")
-
-
-
-
-
---[[
-local GladiatorPanel = CreateInterfacePanel( "HubPanelSettingsGladiator", "Tidy Plates Hub: |cFFAA6600Gladiator", nil )
-BuildHubPanel(GladiatorPanel)
-function ShowTidyPlatesHubGladiatorPanel() InterfaceOptionsFrame_OpenToCategory(GladiatorPanel) end
---]]
---[[
-
--- Testing
-
-/run print(HubDamageConfigFrame:GetParent())
-/run HubDamageConfigFrame:SetParent(UIParent); HubDamageConfigFrame:SetPoint("TOPLEFT")
-
-HubDamageConfigFrame = DamagePanel
-
---]]
+SlashCmdList['HUB'] = ShowTidyPlatesHubPanel
 
 
 StaticPopupDialogs["TIDYPLATESHUB_RESETCHECK"] = {
@@ -591,10 +547,3 @@ StaticPopupDialogs["TIDYPLATESHUB_RESETCHECK"] = {
   hideOnEscape = true,
   preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 }
-
---StaticPopup_Show ("TIDYPLATESHUB_RESETCHECK")
---StaticPopup_Hide ("EXAMPLE_HELLOWORLD")
-
-
-
-

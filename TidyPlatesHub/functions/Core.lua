@@ -40,16 +40,11 @@ local InstanceStatus = TidyPlatesUtility.InstanceStatus
 local IsEnemyTanked = TidyPlatesWidgets.IsEnemyTanked
 
 local function IsOffTanked(unit)
-
 	local unitid = unit.unitid
-	if unitid then
+	if unitid and LocalVars.EnableOffTankHighlight then
 		local targetOf = unitid.."target"
-		local targetIsTank = UnitIsUnit(targetOf, "pet") or ("TANK" ==  UnitGroupRolesAssigned(targetOf))
-
-		--if LocalVars.EnableOffTankHighlight and IsEnemyTanked(unit) then
-		if LocalVars.EnableOffTankHighlight and targetIsTank then
-			return true
-		end
+		return ("TANK" == UnitGroupRolesAssigned(targetOf))
+			or (LocalVars.CountPetAsOtherTank and UnitExists(targetOf) and not UnitIsPlayer(targetOf))
 	end
 end
 
@@ -86,7 +81,6 @@ local PaleBlue = {r = 0, g = 130/255, b = 225/255,}
 local PaleBlueText = {r = 194/255, g = 253/255, b = 1,}
 local DarkRed = {r = .9, g = 0.08, b = .08,}
 
-local RaidClassColors = RAID_CLASS_COLORS
 
 ------------------------------------------------------------------------------------
 
@@ -241,12 +235,8 @@ local function ApplyProfileSettings(theme, ...)
 	ApplyFontCustomization(theme["NameOnly"], theme["NameOnlyBackup"])
 
 	TidyPlates:ForceUpdate()
-	RaidClassColors = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
 end
 
-
--- From Neon.lua...
-local LocalVars = TidyPlatesHubDamageVariables
 
 local function OnInitialize(plate, theme)
 	if theme and theme.WidgetConfig then
@@ -257,7 +247,7 @@ end
 local function OnActivateTheme(theme)
 
 	if not theme then
-		TidyPlatesWidgets.DisableAuraWatcher()
+		TidyPlatesWidgets:DisableAuraWatcher()
 	end
 	-- This gets called when switching themes.
 	-- Ideally, it should clear out old widget data when nil is reported.
@@ -289,7 +279,6 @@ local function ApplyHubFunctions(theme)
 	theme.SetCastbarColor = TidyPlatesHubFunctions.SetCastbarColor
 	theme.OnUpdate = TidyPlatesHubFunctions.OnUpdate
 	theme.OnContextUpdate = TidyPlatesHubFunctions.OnContextUpdate
-	theme.ShowConfigPanel = ShowTidyPlatesHubDamagePanel
 	theme.SetStyle = TidyPlatesHubFunctions.SetStyleBinary
 	theme.SetCustomText = TidyPlatesHubFunctions.SetCustomTextBinary
 	theme.OnInitialize = OnInitialize		-- Need to provide widget positions
@@ -301,14 +290,6 @@ local function ApplyHubFunctions(theme)
 	theme["DefaultBackup"] = CopyTable(theme["Default"])
 	theme["NameOnlyBackup"] = CopyTable(theme["NameOnly"])
 
-	if barStyle then
-		backupStyle.threatborder.default_width = barStyle.threatborder.width
-		backupStyle.healthborder.default_width = barStyle.healthborder.width
-		backupStyle.target.default_width = barStyle.target.width
-		backupStyle.healthbar.default_width = barStyle.healthbar.width
-		backupStyle.eliteicon.default_x = barStyle.eliteicon.x
-	end
-
 	return theme
 end
 
@@ -316,54 +297,6 @@ end
 -- Function List
 ---------------------------------------------
 TidyPlatesHubFunctions.IsOffTanked = IsOffTanked
-TidyPlatesHubFunctions.UseDamageVariables = UseDamageVariables
-TidyPlatesHubFunctions.UseTankVariables = UseTankVariables
 TidyPlatesHubFunctions.UseVariables = UseVariables
 TidyPlatesHubFunctions.EnableWatchers = EnableWatchers
 TidyPlatesHubFunctions.ApplyHubFunctions = ApplyHubFunctions
-
-
-
----------------------------------------------
--- Old, will be removed
----------------------------------------------
---[[
-local function UseDamageVariables()
-	local objectName = "HubPanelSettingsDamage"
-	LocalVars = TidyPlatesHubSettings[objectName] or CreateVariableSet(objectName)
-
-	CallbackUpdate()
-
-	--EnableWatchers()
-	return LocalVars
-end
-
-local function UseTankVariables()
-	local objectName = "HubPanelSettingsTank"
-	LocalVars = TidyPlatesHubSettings[objectName] or CreateVariableSet(objectName)
-
-	CallbackUpdate()
-
-	--EnableWatchers()
-	return LocalVars
-end
-
-
-
-TidyPlatesHubFunctions.UseDamageVariables = UseDamageVariables
-TidyPlatesHubFunctions.UseTankVariables = UseTankVariables
-
---]]
-
-
-
-
-
-
-
-
-
-
-
-
-

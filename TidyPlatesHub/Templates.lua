@@ -1,9 +1,8 @@
-local font = TidyPlatesHubLocalizedFont or "Interface\\Addons\\TidyPlates\\Media\\DefaultFont.ttf"
+local font = "Interface\\Addons\\TidyPlates\\Media\\DefaultFont.ttf"
 local divider = "Interface\\Addons\\TidyPlatesHub\\shared\\ThinBlackLine"
 
 local PanelHelpers = TidyPlatesUtility.PanelHelpers 		-- PanelTools
-local DropdownFrame = CreateFrame("Frame", "TidyPlatesHubCategoryFrame", UIParent, "UIDropDownMenuTemplate" )
-local L = TidyPlatesHub_GetLocalizedString
+
 
 -- Menu Templates
 TidyPlatesHubMenus = TidyPlatesHubMenus or {}
@@ -85,7 +84,7 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 	local function CreateQuickEditbox(name, ...)
 		local columnFrame = ...
 		local frame = CreateFrame("ScrollFrame", name, columnFrame, "UIPanelScrollFrameTemplate")
-		frame.BorderFrame = CreateFrame("Frame", nil, frame )
+		frame.BorderFrame = CreateFrame("Frame", nil, frame , "BackdropTemplate")
 		local EditBox = CreateFrame("EditBox", nil, frame)
 		-- Margins	-- Bottom/Left are supposed to be negative
 		frame.Margins = {Left = 4, Right = 24, Top = 8, Bottom = 8, }
@@ -112,7 +111,7 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 		EditBox:SetMultiLine(true)
 
 		EditBox:SetFrameLevel(frame:GetFrameLevel()-1)
-		EditBox:SetFont("Fonts\\FRIZQT__.TTF", 11, "NONE")
+		EditBox:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
 		EditBox:SetText("Empty")
 		EditBox:SetAutoFocus(false)
 		EditBox:SetTextInsets(9, 6, 2, 2)
@@ -449,7 +448,7 @@ local function AddDropdownTitle(title)
 end
 
 
-local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
+local function CreateInterfacePanel(objectName, panelTitle, parentFrameName)
 
 	-- Variables
 	------------------------------
@@ -458,7 +457,8 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
 
 	-- Panel
 	------------------------------
-	local panel = CreateFrame( "Frame", objectName.."_InterfaceOptionsPanel", UIParent);
+    local panel = CreateFrame( "Frame", objectName.."_InterfaceOptionsPanel", UIParent, "BackdropTemplate")
+    --panel:SetIgnoreParentScale(true)
 	panel.objectName = objectName
 	panel:SetBackdrop({	bgFile = "Interface/Tooltips/UI-Tooltip-Background", --bgFile = "Interface/FrameGeneral/UI-Background-Marble",
 						edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -483,17 +483,17 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
 
         -- Warnings
         ------------------------------
-	panel.WarningFrame = CreateFrame("Frame", objectName.."WarningFrame", panel )
+	panel.WarningFrame = CreateFrame("Frame", objectName.."WarningFrame", panel , "BackdropTemplate")
 	panel.WarningFrame:SetPoint("LEFT", 16, 0 )
 	panel.WarningFrame:SetPoint("TOP", panel.MainLabel, "BOTTOM", 0, -8 )
-        panel.WarningFrame:SetPoint("RIGHT", -16 , 16 )
-        panel.WarningFrame:SetHeight(50)
+    panel.WarningFrame:SetPoint("RIGHT", -16 , 16 )
+    panel.WarningFrame:SetHeight(50)
 	panel.WarningFrame:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-												edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-												--tile = true, tileSize = 16,
-												edgeSize = 16,
-												insets = { left = 4, right = 4, top = 4, bottom = 4 }
-												});
+                                    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+                                    --tile = true, tileSize = 16,
+                                    edgeSize = 16,
+                                    insets = { left = 4, right = 4, top = 4, bottom = 4 }
+                                    })
 	--panel.WarningFrame:SetBackdropColor(0.5, 0.5, 0.5, 1)
 	panel.WarningFrame:SetBackdropColor(.9, 0.3, 0.2, 1)
 	panel.WarningFrame:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
@@ -509,7 +509,7 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
 
 	-- Main Scrolled Frame
 	------------------------------
-	panel.MainFrame = CreateFrame("Frame")
+	panel.MainFrame = CreateFrame("Frame", nil, nil)
 	panel.MainFrame:SetWidth(412)
 	panel.MainFrame:SetHeight(2760) 		-- This can be set VERY long since we've got it in a scrollable window.
 
@@ -524,15 +524,15 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
 
 	-- Scroll Frame Border
 	------------------------------
-	panel.ScrollFrameBorder = CreateFrame("Frame", objectName.."ScrollFrameBorder", panel.ScrollFrame )
+	panel.ScrollFrameBorder = CreateFrame("Frame", objectName.."ScrollFrameBorder", panel.ScrollFrame, "BackdropTemplate")
 	panel.ScrollFrameBorder:SetPoint("TOPLEFT", -4, 5)
 	panel.ScrollFrameBorder:SetPoint("BOTTOMRIGHT", 3, -5)
 	panel.ScrollFrameBorder:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-												edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-												--tile = true, tileSize = 16,
-												edgeSize = 16,
-												insets = { left = 4, right = 4, top = 4, bottom = 4 }
-												});
+                                        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+                                        --tile = true, tileSize = 16,
+                                        edgeSize = 16,
+                                        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+                                        })
 	panel.ScrollFrameBorder:SetBackdropColor(0.05, 0.05, 0.05, 0)
 	panel.ScrollFrameBorder:SetBackdropBorderColor(0.2, 0.2, 0.2, 0)
 
@@ -666,7 +666,6 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
 
 	-- The Unlink feature will pop the config panel onto its own movable window frame
 	UnLinkPanel = function (self)
-		HideUIPanel(InterfaceOptionsFrame)		-- ShowUIPanel(InterfaceOptionsFrame);
 		local height, width = panel:GetHeight(), panel:GetWidth()
 		panel:SetParent(UIParent)
 		panel:ClearAllPoints()
@@ -710,13 +709,9 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
 		panel:Hide()
 	end
 
-        local function OpenTidyPlatesConfig()
-            InterfaceOptionsFrame_OpenToCategory("Tidy Plates")
-        end
-
         local RefreshPanel = function(self)
             SetPanelValues(panel, GetVariableSet(panel))
-            EnableUnlink(UnlinkButton)
+            EnableUnlink()
 
             local activeTheme = TidyPlates:GetTheme()
 
@@ -732,7 +727,7 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
                 panel.Warnings.Text:SetFont(font, 18)
 
                 WarningFixButton:SetText("Change Theme...")
-                WarningFixButton:SetScript("OnClick", OpenTidyPlatesConfig)
+                WarningFixButton:SetScript("OnClick", function() Settings.OpenToCategory("Tidy Plates") end)
             end
 
             --[[
@@ -752,12 +747,15 @@ local function CreateInterfacePanel( objectName, panelTitle, parentFrameName)
 	-----------------
 	-- Button Handlers
 	-----------------
-	panel.okay = ClosePanel --function() OnPanelItemChange(panel) end
-	panel.refresh = RefreshPanel
-        panel:SetScript("OnShow", RefreshPanel)
+	panel.OnCommit = ClosePanel --function() OnPanelItemChange(panel) end
+	panel.OnRefresh = RefreshPanel
+    panel:SetScript("OnShow", RefreshPanel)
 	UnlinkButton:SetScript("OnClick", UnLinkPanel)
 
-	InterfaceOptions_AddCategory(panel)
+	panel:Hide()
+
+    local category = Settings.RegisterCanvasLayoutSubcategory(TidyPlatesInterfacePanel.category, panel, panel.name, panel.name)
+    category.ID = panel.name;
 	----------------
 	-- Return a pointer to the whole thingy
 	----------------

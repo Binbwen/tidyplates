@@ -1,10 +1,8 @@
 local cvarlist = {
 	["nameplateShowFriends"] = { prettyName = UNIT_NAMEPLATES_SHOW_FRIENDS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_FRIENDS, type = "boolean" },
-	["nameplateShowFriendlyPets"] = { prettyName = UNIT_NAMEPLATES_SHOW_FRIENDLY_PETS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_FRIENDLY_PETS, type = "boolean" },
 	["nameplateShowFriendlyGuardians"] = { prettyName = UNIT_NAMEPLATES_SHOW_FRIENDLY_GUARDIANS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_FRIENDLY_GUARDIANS, type = "boolean" },
 	["nameplateShowFriendlyTotems"] = { prettyName = UNIT_NAMEPLATES_SHOW_FRIENDLY_TOTEMS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_FRIENDLY_TOTEMS, type = "boolean" },
 	["nameplateShowEnemies"] = { prettyName = UNIT_NAMEPLATES_SHOW_ENEMIES, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_ENEMIES, type = "boolean" },
-	["nameplateShowEnemyPets"] = { prettyName = UNIT_NAMEPLATES_SHOW_ENEMY_PETS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_ENEMY_PETS, type = "boolean" },
 	["nameplateShowEnemyGuardians"] = { prettyName = UNIT_NAMEPLATES_SHOW_ENEMY_GUARDIANS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_ENEMY_GUARDIANS, type = "boolean" },
 	["nameplateShowEnemyTotems"] = { prettyName = UNIT_NAMEPLATES_SHOW_ENEMY_TOTEMS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_ENEMY_TOTEMS, type = "boolean" },
 	["nameplateShowEnemyMinus"] = { prettyName = UNIT_NAMEPLATES_SHOW_ENEMY_MINUS, description = OPTION_TOOLTIP_UNIT_NAMEPLATES_SHOW_ENEMY_MINUS, type = "boolean" },

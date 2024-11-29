@@ -4,14 +4,15 @@
 local classWidgetPath = "Interface\\Addons\\TidyPlatesWidgets\\ClassWidget\\"
 local TotemIcons, TotemTypes = {}, {}
 
+local UNSPECIFIED_TOTEM = 0
 local AIR_TOTEM, EARTH_TOTEM, FIRE_TOTEM, WATER_TOTEM = 1, 2, 3, 4
 
 local function SetTotemInfo(spellid, totemType)
-	local name, _, icon = GetSpellInfo(spellid)
-	if name and icon and totemType then
-		TotemIcons[name] = icon
-		TotemTypes[name] = totemType
-	end
+    local spell = C_Spell.GetSpellInfo(spellid) or {}
+    if spell.name and spell.iconID and totemType then
+        TotemIcons[spell.name] = spell.iconID
+        TotemTypes[spell.name] = totemType
+    end
 end
 
 ----------------------------------------------------------------------------------------

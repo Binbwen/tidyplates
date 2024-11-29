@@ -118,7 +118,7 @@ local function UpdateThreatLine(frame, unitid)
 
 		if targetOf and targetOf ~= "player" then
 			if UnitIsUnit(targetOf, "pet")
-				or GetPartyAssignment("MAINTANK", targetOf)
+				or GetPartyAssignment("MAINTANK", targetOf, true)
 				or ("TANK" == UnitGroupRolesAssigned(targetOf)) then
 					threatcolor = frame._TankedColor
 			end
@@ -231,7 +231,6 @@ local function CreateWidgetFrame(extended)
 		frame.TargetText:SetPoint("RIGHT",frame.Line,"LEFT", -5, 2)
 		--]]
 		-- Mechanics/Setup
-		frame.FadeLater = FadeLater
 		frame.FadeTime = 0
 		frame:Hide()
 		frame.ThreatMax, frame.ThreatMin, frame.UseRawValues = 1, 0, false

@@ -110,8 +110,10 @@ TidyPlatesUtility.updateTable = updatetable
 -- GameTooltipScanner
 ------------------------------------------
 local ScannerName = "TidyPlatesScanningTooltip"
-local TooltipScanner = CreateFrame( "GameTooltip", ScannerName , nil, "GameTooltipTemplate" ); -- Tooltip name cannot be nil
-TooltipScanner:SetOwner( WorldFrame, "ANCHOR_NONE" );
+---@class GameTooltip
+local TooltipScanner = CreateFrame("GameTooltip", ScannerName , nil, "GameTooltipTemplate") --[[@as any]]
+TooltipScanner.name = ScannerName
+TooltipScanner:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 ------------------------------------------
 -- Unit Subtitles/NPC Roles
@@ -120,45 +122,40 @@ local UnitSubtitles = {}
 local function GetUnitSubtitle(unit)
 	local unitid = unit.unitid
 
-	-- Bypass caching while in an instance
-	--if inInstance or (not UnitExists(unitid)) then return end
-	if ( UnitIsPlayer(unitid) or UnitPlayerControlled(unitid) or (not UnitExists(unitid))) then return end
+	if UnitIsPlayer(unitid)
+       or UnitPlayerControlled(unitid)
+       or not UnitExists(unitid) then
+            return
+    end
 
-	--local guid = UnitGUID(unitid)
-	local name = unit.name
-	local subTitle = UnitSubtitles[name]
+	local subTitle = UnitSubtitles[unit.name]
 
 	if not subTitle then
 		TooltipScanner:ClearLines()
  		TooltipScanner:SetUnit(unitid)
 
- 		local TooltipTextLeft1 = _G[ScannerName.."TextLeft1"]
- 		local TooltipTextLeft2 = _G[ScannerName.."TextLeft2"]
- 		local TooltipTextLeft3 = _G[ScannerName.."TextLeft3"]
- 		local TooltipTextLeft4 = _G[ScannerName.."TextLeft4"]
+ 		local line1 = _G[ScannerName.."TextLeft1"]
+ 		local line2 = _G[ScannerName.."TextLeft2"]
 
- 		name = TooltipTextLeft1:GetText()
+ 		local text1 = line1:GetText()
+		if not text1 then return end
 
-		if name then name = gsub( gsub( (name), "|c........", "" ), "|r", "" ) else return end	-- Strip color escape sequences: "|c"
-		if name ~= UnitName(unitid) then return end	-- Avoid caching information for the wrong unit
+        local name = text1:gsub("|c........", ""):gsub("|r", "")
+		if name ~= UnitName(unitid) then return end
 
-
-		-- Tooltip Format Priority:  Faction, Description, Level
-		local toolTipText = TooltipTextLeft2:GetText() or "UNKNOWN"
-
-		if string.match(toolTipText, UNIT_LEVEL_TEMPLATE) then
+		local text2 = line2:GetText() or "UNKNOWN"
+		if text2:match(UNIT_LEVEL_TEMPLATE) then
 			subTitle = ""
 		else
-			subTitle = toolTipText
+			subTitle = text2
 		end
 
 		UnitSubtitles[name] = subTitle
 	end
 
-	-- Maintaining a cache allows us to avoid the hit
-	if subTitle == "" then return nil
-	else return subTitle end
-
+	if subTitle ~= "" then
+        return subTitle
+    end
 end
 
 TidyPlatesUtility.GetUnitSubtitle = GetUnitSubtitle
@@ -166,145 +163,157 @@ TidyPlatesUtility.GetUnitSubtitle = GetUnitSubtitle
 ------------------------------------------
 -- Quest Info
 ------------------------------------------
-local function GetTooltipLineText(lineNumber)
-        local tooltipLine = _G[ScannerName .. "TextLeft" .. lineNumber]
-        local tooltipText = tooltipLine:GetText()
-        local r, g, b = tooltipLine:GetTextColor()
+local playerName = UnitName("player")
+TooltipScanner.currLine = 3
+TooltipScanner.ClearLinesOld = TooltipScanner.ClearLines
+---@diagnostic disable-next-line: duplicate-set-field
+function TooltipScanner:ClearLines()
+    self.currLine = 3
+    self:ClearLinesOld()
+end
+function TooltipScanner:GetNextLine()
+    local tooltipLine = _G[self.name .. "TextLeft" .. self.currLine]
+    if not tooltipLine then return end
+    self.currLine = self.currLine + 1
 
-        return tooltipText, r, g, b
+    local tooltipText = tooltipLine:GetText()
+    local r, g, b = tooltipLine:GetTextColor()
+    local offset = (select(4, tooltipLine:GetPoint(2)) or 0)
+    local isProgress = 27 < offset and offset < 29     --* offset is not an int
+
+    return tooltipText, r, g, b, isProgress
+end
+function TooltipScanner:IterateLines()
+    return self.GetNextLine, self
 end
 
-local function GetUnitQuestInfo(unit)
+function TidyPlatesUtility.GetUnitQuestInfo(unit)
     local unitid = unit.unitid
-    local questName
-    local questProgress
+    local questList = {}
+    local isGroup = false
 
     if not unitid then return end
 
-    -- Tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+    TooltipScanner:SetOwner(WorldFrame, "ANCHOR_NONE")
     TooltipScanner:ClearLines()
     TooltipScanner:SetUnit(unitid)
 
-    for line = 3, TooltipScanner:NumLines() do
-        local tooltipText, r, g, b = GetTooltipLineText( line )
+    for text, r, g, b in TooltipScanner:IterateLines() do
 
-        -- If the Quest Name exists, the following tooltip lines list quest progress
-        if questName then
-            -- Strip out the name of the player that is on the quest.
-            local playerName, questNote = string.match(tooltipText, "(%g*) ?%- (.*)")
+        if b == 0 and r > 0.99 and g > 0.82 then    -- quest names have this color
+            local quest = {}
+            quest.name = text
 
-            if (playerName == "") or (playerName == UnitName("player")) then
-                questProgress = questNote
-                break
+            local nextText, _, _, _, nextIsProgess = TooltipScanner:GetNextLine()
+            quest.player = nextIsProgess and "" or nextText
+            if not nextIsProgess then
+                isGroup = true
             end
 
-        elseif b == 0 and r > 0.99 and g > 0.82 then
-            -- Note: Quest Name Heading is colored Yellow
-            questName = tooltipText
+            local progText = nextIsProgess and nextText or TooltipScanner:GetNextLine()
+            if not progText then return end
+            quest.progress = progText:match("(%d+/%d+)")
+                             or progText:match("([%d%.]+%%)")
+                             or progText
+
+            table.insert(questList, quest)
         end
     end
 
-    return questName, questProgress
+    if isGroup then
+        for i, quest in ipairs(questList) do
+            if quest.player == playerName then
+                return quest.name, quest.progress
+            end
+        end
+    end
+
+    local quest = questList[1]
+    if not quest then
+        return
+    else
+        return quest.name, quest.progress
+    end
 end
-
-
-TidyPlatesUtility.GetUnitQuestInfo = GetUnitQuestInfo
 
 ------------------------
 -- Threat Function
 ------------------------
 
--- /run print(UnitThreatSituation("party1"), UnitAffectingCombat("party1"))
---local function GetThreatCondition(name)
-local function GetFriendlyThreat(unitid)
-
-	if unitid then
-		local isUnitInParty = UnitPlayerOrPetInParty(unit)
-		local isUnitInRaid = UnitInRaid(unit)
-		local isUnitPet = (unit == "pet")
-
-		--if isUnitInParty then
-			local unitaggro = UnitThreatSituation(unitid)
-			if unitaggro and unitaggro > 1 then return true end
-		--end
-	end
+---@param unit UnitToken?
+---@return boolean
+function TidyPlatesUtility.GetFriendlyThreat(unit)
+    return unit and (UnitThreatSituation(unit) or 0) > 1 or false
 end
 
-TidyPlatesUtility.GetFriendlyThreat = GetFriendlyThreat
 
-------------------------
--- Threat Function
-------------------------
+---@param enemyUnitid UnitToken a target/enemy
+---@return number?, UnitToken?
+function TidyPlatesUtility.GetRelativeThreat(enemyUnitid)
+    if not UnitExists(enemyUnitid) then return end
 
-do
+    local allyUnitid, allyThreat = nil, 0
+    local playerIsTanking, playerSituation, playerThreat = UnitDetailedThreatSituation("player", enemyUnitid)
+    if not playerThreat then return end
 
-	local function GetRelativeThreat(enemyUnitid)		-- 'enemyUnitid' is a target/enemy
-		if not UnitExists(enemyUnitid) then return end
+    -- Get Group Type
+    local evalUnitid, evalIndex, evalThreat
+    local groupType, size, startAt = nil, nil, 1
+    local groupSize = GetNumGroupMembers() --[[@as integer]]
+    if UnitInRaid("player") then
+        groupType = "raid"
+        startAt = 2
+    elseif UnitInParty("player") then
+        groupType = "party"
+    else
+        groupType = nil
+    end
 
-		local allyUnitid, allyThreat = nil, 0
-		local playerIsTanking, playerSituation, playerThreat = UnitDetailedThreatSituation("player", enemyUnitid)
-		if not playerThreat then return end
+    -- Cycle through Group, picking highest threat holder
+    if groupType then
+        for allyIndex = startAt, groupSize do
+            evalUnitid = groupType..allyIndex
+            evalThreat = select(3, UnitDetailedThreatSituation(evalUnitid, enemyUnitid))
+            if evalThreat and evalThreat > allyThreat then
+                allyThreat = evalThreat
+                allyUnitid = evalUnitid
+            end
+        end
+    end
 
-		-- Get Group Type
-		local evalUnitid, evalIndex, evalThreat
-		local groupType, size, startAt = nil, nil, 1
-		if UnitInRaid("player") then
-			groupType = "raid"
-			groupSize = TidyPlatesUtility:GetNumRaidMembers()
-			startAt = 2
-		elseif UnitInParty("player") then
-			groupType = "party"
-			groupSize = TidyPlatesUtility:GetNumPartyMembers()
-		else groupType = nil end
+    -- Request Pet Threat (if possible)
+    if HasPetUI() and UnitExists("pet") then
+        evalThreat = select(3, UnitDetailedThreatSituation("pet", enemyUnitid)) or 0
+        if evalThreat > allyThreat then
+            allyThreat = evalThreat
+            allyUnitid = "pet"
+        end
+    end
 
-		-- Cycle through Group, picking highest threat holder
-		if groupType then
-			for allyIndex = startAt, groupSize do
-				evalUnitid = groupType..allyIndex
-				evalThreat = select(3, UnitDetailedThreatSituation(evalUnitid, enemyUnitid))
-				if evalThreat and evalThreat > allyThreat then
-					allyThreat = evalThreat
-					allyUnitid = evalUnitid
-				end
-			end
-		end
-
-		-- Request Pet Threat (if possible)
-		if HasPetUI() and UnitExists("pet") then
-			evalThreat = select(3, UnitDetailedThreatSituation("pet", enemyUnitid)) or 0
-			if evalThreat > allyThreat then
-				allyThreat = evalThreat
-				allyUnitid = "pet"
-			end
-		end
-
-		--[[
-		if playerIsTanking and allyThreat then
-			return 100 - tonumber(allyThreat or 0), true
-		elseif allyThreat and allyUnitid then
-			return 100 - playerThreat, false
-		end
-		--]]
-		-- [[
-		-- Return the appropriate value
-		if playerThreat and allyThreat and allyUnitid then
-			if playerThreat >= 100 then 	-- The enemy is attacking you. You are tanking. 	Returns: 1. Your threat, plus your lead over the next highest person, 2. Your Unitid (since you're tanking)
-				return tonumber(playerThreat + (100-allyThreat)), "player"
-			else 	-- The enemy is not attacking you.  Returns: 1. Your scaled threat percent, 2. Who is On Top
-				return tonumber(playerThreat), allyUnitid
-			end
-		end
-		--]]
-	end
-
-	TidyPlatesUtility.GetRelativeThreat = GetRelativeThreat
+    --[[
+    if playerIsTanking and allyThreat then
+        return 100 - tonumber(allyThreat or 0), true
+    elseif allyThreat and allyUnitid then
+        return 100 - playerThreat, false
+    end
+    --]]
+    -- [[
+    -- Return the appropriate value
+    if playerThreat and allyThreat and allyUnitid then
+        if playerThreat >= 100 then 	-- The enemy is attacking you. You are tanking. 	Returns: 1. Your threat, plus your lead over the next highest person, 2. Your Unitid (since you're tanking)
+            return playerThreat + (100-allyThreat), "player"
+        else 	-- The enemy is not attacking you.  Returns: 1. Your scaled threat percent, 2. Who is On Top
+            return playerThreat, allyUnitid
+        end
+    end
+    --]]
 end
 ------------------------------------------------------------------
 -- Panel Helpers (Used to create interface panels)
 ------------------------------------------------------------------
 
 local function CreatePanelFrame(self, reference, listname, title)
-	local panelframe = CreateFrame( "Frame", reference, UIParent);
+	local panelframe = CreateFrame( "Frame", reference, UIParent, "BackdropTemplate");
 	panelframe.name = listname
 	panelframe.Label = panelframe:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
 	panelframe.Label:SetPoint("TOPLEFT", panelframe, "TOPLEFT", 16, -16)
@@ -337,7 +346,7 @@ local function CreateDescriptionFrame(self, reference, parent, title, text)
 end
 --]]
 local function CreateCheckButton(self, reference, parent, label)
-	local checkbutton = CreateFrame( "CheckButton", reference, parent, "InterfaceOptionsCheckButtonTemplate" )
+	local checkbutton = CreateFrame( "CheckButton", reference, parent, "InterfaceOptionsCheckButtonTemplate")
 	checkbutton.Label = _G[reference.."Text"]
 	checkbutton.Label:SetText(label)
 	checkbutton.GetValue = function() if checkbutton:GetChecked() then return true else return false end end
@@ -351,7 +360,7 @@ local function CreateRadioButtons(self, reference, parent, numberOfButtons, defa
 	local radioButtonSet = {}
 
 	for index = 1, numberOfButtons do
-		radioButtonSet[index] = CreateFrame( "CheckButton", reference..index, parent, "UIRadioButtonTemplate" )
+		radioButtonSet[index] = CreateFrame( "CheckButton", reference..index, parent, "UIRadioButtonTemplate")
 		radioButtonSet[index].Label = _G[reference..index.."Text"]
 		radioButtonSet[index].Label:SetText(list[index] or " ")
 		radioButtonSet[index].Label:SetWidth(250)
@@ -441,14 +450,14 @@ end
 -- Alternative Dropdown Menu
 ------------------------------------------------
 
-local DropDownMenuFrame = CreateFrame("Frame")
+local DropDownMenuFrame = CreateFrame("Frame", nil, nil)
 local MaxDropdownItems = 25
 
 DropDownMenuFrame:SetSize(100, 100)
 DropDownMenuFrame:SetFrameStrata("TOOLTIP");
 DropDownMenuFrame:Hide()
 
-local Border = CreateFrame("Frame", nil, DropDownMenuFrame)
+local Border = CreateFrame("Frame", nil, DropDownMenuFrame, "BackdropTemplate")
 Border:SetBackdrop(
 		{	bgFile = "Interface/DialogFrame/UI-DialogBox-Background-Dark",
             edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -565,7 +574,7 @@ end
 
 
 local function CreateDropdownFrame(helpertable, reference, parent, menu, default, label, valueMethod)
-	local drawer = CreateFrame("Frame", reference, parent, "TidyPlatesDropdownDrawerTemplate" )
+	local drawer = CreateFrame("Frame", reference, parent, "TidyPlatesDropdownDrawerTemplate")
 
 	drawer.Text = _G[reference.."Text"]
 	drawer.Button = _G[reference.."Button"]
@@ -651,35 +660,41 @@ end
 -- [[ COLOR
 local CreateColorBox
 do
-
 	local workingFrame
-	local function ChangeColor(cancel)
-		local a, r, g, b
-		if cancel then
-			--r,g,b,a = unpack(ColorPickerFrame.startingval )
-			workingFrame:SetBackdropColor(unpack(ColorPickerFrame.startingval ))
-		else
-			a, r, g, b = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB();
-			workingFrame:SetBackdropColor(r,g,b,1-a)
-			if workingFrame.OnValueChanged then workingFrame:OnValueChanged() end
-		end
+	local function ChangeColor(r, g, b, a)
+		workingFrame:SetBackdropColor(r, g, b, a)
+		if workingFrame.OnValueChanged then workingFrame:OnValueChanged() end
 	end
 
 	local function ShowColorPicker(frame)
 		local r,g,b,a = frame:GetBackdropColor()
 		workingFrame = frame
-		ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 	ChangeColor, ChangeColor, ChangeColor;
-		ColorPickerFrame.startingval  = {r,g,b,a}
-		ColorPickerFrame:SetColorRGB(r,g,b);
-		ColorPickerFrame.hasOpacity = true
-		ColorPickerFrame.opacity = 1 - a
-		ColorPickerFrame:SetFrameStrata(frame:GetFrameStrata())
-		ColorPickerFrame:SetFrameLevel(frame:GetFrameLevel()+1)
-		ColorPickerFrame:Hide(); ColorPickerFrame:Show(); -- Need to activate the OnShow handler.
+
+		ColorPickerFrame:SetupColorPickerAndShow({
+		r = r,
+		g = g,
+		b = b,
+		opacity = a,
+		hasOpacity = true,
+		swatchFunc = function()
+			r, g, b = ColorPickerFrame:GetColorRGB()
+			a = ColorPickerFrame:GetColorAlpha()
+			ChangeColor(r,g,b,a)
+		end,
+		opacityFunc = function()
+			r, g, b = ColorPickerFrame:GetColorRGB()
+			a = ColorPickerFrame:GetColorAlpha()
+			ChangeColor(r,g,b,a)
+		end,
+		cancelFunc = function()
+			r, g, b, a = ColorPickerFrame.previousValues.r, ColorPickerFrame.previousValues.g, ColorPickerFrame.previousValues.b, ColorPickerFrame.previousValues.a
+			ChangeColor(r,g,b,a)
+		end
+		})
 	end
 
 	function CreateColorBox(self, reference, parent, label, r, g, b, a)
-		local colorbox = CreateFrame("Button", reference, parent)
+		local colorbox = CreateFrame("Button", reference, parent, "BackdropTemplate")
 		colorbox:SetWidth(24)
 		colorbox:SetHeight(24)
 		colorbox:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameColorSwatch",
@@ -763,7 +778,7 @@ PanelHelpers.EnableFreePositioning = EnableFreePositioning
 ----------------------
 do
 	local CallList = {}			-- Key = Frame, Value = Expiration Time
-	local Watcherframe = CreateFrame("Frame")
+	local Watcherframe = CreateFrame("Frame", nil, nil)
 	local WatcherframeActive = false
 	local select = select
 	local timeToUpdate = 0
@@ -797,45 +812,3 @@ do
 	TidyPlatesUtility.CallIn = CallIn
 
 end
-
-
-
---------------------------------------------------------------------------------------------------
--- InterfaceOptionsFrame_OpenToCategory
--- Quick and dirty fix
---------------------------------------------------------------------------------------------------
-
-do
-	local fixed = false
-
-	local function OpenInterfacePanel(panel)
-		if not fixed then
-
-			local panelName = panel.name
-			if not panelName then return end
-
-			local t = {}
-
-			for i, p in pairs(INTERFACEOPTIONS_ADDONCATEGORIES) do
-				if p.name == panelName then
-					t.element = p
-					InterfaceOptionsListButton_ToggleSubCategories(t)
-				end
-			end
-			fixed = true
-		end
-
-		InterfaceOptionsFrame_OpenToCategory(panel)
-	end
-
-	TidyPlatesUtility.OpenInterfacePanel = OpenInterfacePanel
-end
-
--- /run for i,v in pairs(INTERFACEOPTIONS_ADDONCATEGORIES) do print(i, v, v.name) end
-
-
-
-
-
-
-

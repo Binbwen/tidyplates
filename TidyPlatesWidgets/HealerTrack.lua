@@ -212,7 +212,7 @@ local function UpdateRolesViaScoreboard()
 				end
 			end
 		end
-		if UpdateIsNeeded then TidyPlates:RequestDelegateUpdate() end
+		if UpdateIsNeeded then TidyPlates:RequestUpdate() end
 	end
 
 end
@@ -236,7 +236,7 @@ local HealerSpells = {
         -- Druid
         ---------
 		[18562] = "DRUID", -- Swiftmend
-        [17116] = "DRUID", -- Nature's Swiftness
+        [132158] = "DRUID", -- Nature's Swiftness
         [48438] = "DRUID", -- Wild Growth
         [33891] = "DRUID", -- Tree of Life
 
@@ -316,7 +316,7 @@ function Events.COMBAT_LOG_EVENT_UNFILTERED()
 				local rawName = strsplit("-", sourceName)				-- Strip server name
 				if RoleList[rawName] ~= "Healer" then
 					RoleList[rawName] = "Healer"
-					TidyPlates:RequestDelegateUpdate()
+					TidyPlates:RequestUpdate()
 				end
 			end
 		end
@@ -328,7 +328,7 @@ local function CombatEventHandler(frame, event, ...)
 	if handler then handler(...) end
 end
 
-local HealerTrackWatcher = CreateFrame("Frame")
+local HealerTrackWatcher = CreateFrame("Frame", nil, nil)
 
 local function Enable()
 	--print("TidyPlatesWidgets.HealerTrack:Enable")

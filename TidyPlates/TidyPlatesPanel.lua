@@ -7,11 +7,14 @@ TidyPlatesPanel = {}
 
 local SetTheme = TidyPlatesInternal.SetTheme	-- Use the protected version
 
-local version = GetAddOnMetadata("TidyPlates", "version")
+local version = C_AddOns.GetAddOnMetadata("TidyPlates", "version")
 local versionString = "|cFF666666"..version
 
-local TidyPlatesInterfacePanel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfacePanel", "Tidy Plates", nil )
-InterfaceOptions_AddCategory(TidyPlatesInterfacePanel);
+local TidyPlatesInterfacePanel = PanelHelpers:CreatePanelFrame("TidyPlatesInterfacePanel", "Tidy Plates", nil)
+local category = Settings.RegisterCanvasLayoutCategory(TidyPlatesInterfacePanel, TidyPlatesInterfacePanel.name, TidyPlatesInterfacePanel.name)
+category.ID = TidyPlatesInterfacePanel.name
+TidyPlatesInterfacePanel.category = category
+Settings.RegisterAddOnCategory(category)
 
 local CallIn = TidyPlatesUtility.CallIn
 local copytable = TidyPlatesUtility.copyTable
@@ -324,7 +327,7 @@ local function BuildInterfacePanel(panel)
 	panel.ThemeCategoryTitle:SetTextColor(255/255, 105/255, 6/255)
 
 	-- Dropdown
-	panel.ActiveThemeDropdown = PanelHelpers:CreateDropdownFrame("TidyPlatesChooserDropdown", panel, ThemeDropdownMenuItems, TidyPlatesDefaultThemeName, nil, true)
+	panel.ActiveThemeDropdown = PanelHelpers:CreateDropdownFrame("TidyPlatesChooserDropdown", panel, ThemeDropdownMenuItems, "           ", nil, true)
 	panel.ActiveThemeDropdown:SetPoint("TOPLEFT", panel.ThemeCategoryTitle, "BOTTOMLEFT", -20, -4)
 
 	----------------------------------------------
@@ -429,16 +432,10 @@ local function BuildInterfacePanel(panel)
 	----------------------------------------------
 	-- Other Options
 	----------------------------------------------
-	-- Blizz Button
-	local BlizzOptionsButton = CreateFrame("Button", "TidyPlatesOptions_BlizzOptionsButton", panel, "TidyPlatesPanelButtonTemplate")
-	--BlizzOptionsButton:SetPoint("TOPRIGHT", ResetButton, "TOPLEFT", -8, 0)
-	BlizzOptionsButton:SetPoint("TOPLEFT", panel.AutoShowEnemy, "TOPLEFT", 16, -55)
-	BlizzOptionsButton:SetWidth(260)
-	BlizzOptionsButton:SetText("Nameplate Motion & Visibility")
 
 	-- Cast Bars
 	panel.DisableCastBars = PanelHelpers:CreateCheckButton("TidyPlatesOptions_DisableCastBars", panel, "Disable Cast Bars")
-	panel.DisableCastBars:SetPoint("TOPLEFT", BlizzOptionsButton, "TOPLEFT", 0, -35)
+	panel.DisableCastBars:SetPoint("TOPLEFT", panel.AutoShowEnemy, "TOPLEFT", 16, -55)
 	panel.DisableCastBars:SetScript("OnClick", function(self) SetCastBars(not self:GetChecked()) end)
 
 	-- ForceBlizzardFont
@@ -453,21 +450,14 @@ local function BuildInterfacePanel(panel)
 	ResetButton:SetText("Reset Configuration")
 
 	-- Update Functions
-	panel.okay = OnOkay
-	panel.refresh = OnRefresh
+	panel.OnCommit = OnOkay
+	panel.OnRefresh = OnRefresh
 	panel.ActiveThemeDropdown.OnValueChanged = OnValueChange
 
 	panel.FirstSpecDropdown.OnValueChanged = OnValueChange
 	panel.SecondSpecDropdown.OnValueChanged = OnValueChange
 	panel.ThirdSpecDropdown.OnValueChanged = OnValueChange
 	panel.FourthSpecDropdown.OnValueChanged = OnValueChange
-
-
-
-	-- Blizzard Nameplate Options Button
-	BlizzOptionsButton:SetScript("OnClick", function()
-		InterfaceOptionsFrame_OpenToCategory(_G["InterfaceOptionsNamesPanel"])
-	end)
 
 	-- Reset Button
 	ResetButton:SetScript("OnClick", function()
@@ -578,7 +568,7 @@ function slash_TidyPlates(arg)
 		TidyPlatesSlashCommands[arg]()
 		TidyPlates:ForceUpdate()
 	else
-		TidyPlatesUtility.OpenInterfacePanel(TidyPlatesInterfacePanel)
+        Settings.OpenToCategory(TidyPlatesInterfacePanel.name)
 	end
 end
 
